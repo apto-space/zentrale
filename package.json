@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:gen": "bunx x @gel/generate queries --file queries &&  bunx x @gel/generate edgeql-js && bunx x @gel/generate interfaces"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.14",

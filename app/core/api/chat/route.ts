@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     messages,
   });
 
-  return result.toDataStreamResponse();
+  const res = result.toDataStreamResponse();
 }
 // goal
 // return format

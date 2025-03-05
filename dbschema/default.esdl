@@ -5,12 +5,14 @@ module default {
         required conversation_anon_user_id: str {constraint exclusive};
         # messages split up in case conversations get very long
         required conversation_messages:= assert_exists(.<message_conversation[is Message]);
+        required conversation_message_count:= count(.conversation_messages)
     }
 
     type Message extending Timestamped {
         required message_conversation: Conversation;
         required message_content: json;
         required message_role: str;
+        constraint exclusive on ((.message_conversation, .created_at));
     }
 
     abstract type Timestamped {
