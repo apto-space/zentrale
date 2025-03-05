@@ -1,10 +1,11 @@
 "use client";
 import { useChat } from "@ai-sdk/react";
 import ChatMessages from "./ChatMessages";
-import TextareaAutosize from "react-textarea-autosize";
 import { useAnonSession } from "../hooks/useAnonSession";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { EmptyState } from "./EmptyState";
+import { ChatInput } from "./ChatInput";
 
 // next steps
 // anon auth to keep history
@@ -52,6 +53,15 @@ export const ChatPage = () => {
     content: msg.content.replace(/<CONV_ID>.*?<\/CONV_ID_END>/g, ""),
   }));
 
+  const handleQuestionClick = (question: string) => {
+    // Set the input value to the clicked question
+    handleInputChange({
+      target: { value: question },
+    } as React.ChangeEvent<HTMLTextAreaElement>);
+    // Submit the question
+    handleSubmit();
+  };
+
   return (
     <div className="h-screen flex flex-col">
       {/* <div className="bg-white border-b border-b-gray-200 px-6 py-4">
@@ -72,21 +82,26 @@ export const ChatPage = () => {
           </div>
         </div> */}
 
-      <ChatMessages
-        messages={filteredMessages}
-        isLoading={status == "streaming"}
-      />
-      <TextareaAutosize
-        autoFocus
-        onKeyDown={(ev) => {
-          if (ev.key === "Enter" && !ev.shiftKey) {
-            ev.preventDefault();
-            handleSubmit();
-          }
-        }}
-        onChange={handleInputChange}
-        value={input}
-      ></TextareaAutosize>
+      {messages.length === 0 ? (
+        <EmptyState
+          onQuestionClick={handleQuestionClick}
+          input={input}
+          handleInputChange={handleInputChange}
+          handleSubmit={handleSubmit}
+        />
+      ) : (
+        <>
+          <ChatMessages
+            messages={filteredMessages}
+            isLoading={status == "streaming"}
+          />
+          <ChatInput
+            input={input}
+            handleInputChange={handleInputChange}
+            handleSubmit={handleSubmit}
+          />
+        </>
+      )}
       {/* {messages.length === 0 ? (
           <EmptyState onQuestionClick={handleQuestionClick} />
         ) : (
