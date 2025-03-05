@@ -2,7 +2,7 @@ module default {
     # using qualified names to prevent confusion / create 'typing'
 
     type Conversation extending Timestamped {
-        required conversation_anon_user_id: str {constraint exclusive};
+        required conversation_anon_user_id: str;
         # messages split up in case conversations get very long
         required conversation_messages:= assert_exists(.<message_conversation[is Message]);
         required conversation_message_count:= count(.conversation_messages)

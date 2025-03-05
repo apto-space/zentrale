@@ -2,15 +2,46 @@
 import { useChat } from "@ai-sdk/react";
 import ChatMessages from "./ChatMessages";
 import TextareaAutosize from "react-textarea-autosize";
+import { useAnonSession } from "../hooks/useAnonSession";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 // next steps
 // anon auth to keep history
 // init DB
 
 export const ChatPage = () => {
+  const { id: sessionId } = useAnonSession();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [conversationId, setConversationId] = useState<string | null>(
+    searchParams.get("conversationId")
+  );
+
   const { messages, input, handleInputChange, handleSubmit, status } = useChat({
-    api: "core/api/chat",
+    api: `core/api/chat?sessionId=${sessionId}${
+      conversationId ? `&conversationId=${conversationId}` : ""
+    }`,
+    // onResponse: (response) => {
+    //   // Check if the response starts with CONVERSATION_ID:
+    //   const reader = response.body?.getReader();
+    //   if (reader) {
+    //     (async () => {
+    //       const { value } = await reader.read();
+    //       const text = new TextDecoder().decode(value);
+    //       if (text.startsWith("CONVERSATION_ID:")) {
+    //         const newConversationId = text.split(":")[1].trim();
+    //         setConversationId(newConversationId);
+    //         // Update URL without full page reload
+    //         router.push(`?conversationId=${newConversationId}`, {
+    //           scroll: false,
+    //         });
+    //       }
+    //     })();
+    //   }
+    // },
   });
+
   return (
     <div className="h-screen flex flex-col">
       {/* <div className="bg-white border-b border-b-gray-200 px-6 py-4">

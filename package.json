@@ -12,12 +12,15 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.14",
     "@ai-sdk/react": "^1.1.20",
+    "@types/uuid": "^10.0.0",
     "ai": "^4.1.51",
+    "edgedb": "^2.0.1",
     "next": "15.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.0.1",
     "react-textarea-autosize": "^8.5.7",
+    "uuid": "^11.1.0",
     "yet-another-react-lightbox": "^3.21.7"
   },
   "devDependencies": {

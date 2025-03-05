@@ -80,6 +80,7 @@ export namespace $default {
   }
   export interface Conversation extends Timestamped {
     "conversation_anon_user_id": string;
+    "conversation_message_count": number;
     "conversation_messages": Message[];
   }
   export interface Message extends Timestamped {
