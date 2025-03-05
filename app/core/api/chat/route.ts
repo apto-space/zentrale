@@ -44,15 +44,33 @@ export async function POST(req: Request) {
     }
     conversation = existingConversation;
   } else {
-    // Create new conversation
+    // Create new conversation with its first message atomically
+    const firstMessage = messages[0];
     const newConversation = await client.querySingle<Conversation>(
       `
-      insert Conversation {
-        conversation_anon_user_id := <str>$session_id,
+      with
+        new_conv := (
+          insert Conversation {
+            conversation_anon_user_id := <str>$session_id,
+          }
+        ),
+        # Insert the first message immediately to ensure no conversation exists without messages
+        first_msg := (
+          insert Message {
+            message_conversation := new_conv,
+            message_content := <json>$content,
+            message_role := <str>$role,
+          }
+        )
+      select new_conv {
+        id,
+        conversation_anon_user_id,
       }
       `,
       {
         session_id: sessionId,
+        content: firstMessage.content,
+        role: firstMessage.role,
       }
     );
 
@@ -60,24 +78,24 @@ export async function POST(req: Request) {
       return new Response("Failed to create conversation", { status: 500 });
     }
     conversation = newConversation;
-  }
 
-  // Save the initial messages
-  for (const message of messages) {
-    await client.query(
-      `
-      insert Message {
-        message_conversation := (select Conversation filter .id = <uuid>$conversation_id),
-        message_content := <json>$content,
-        message_role := <str>$role,
-      }
-      `,
-      {
-        conversation_id: conversation.id,
-        content: message.content,
-        role: message.role,
-      }
-    );
+    // Save any remaining messages
+    for (const message of messages.slice(1)) {
+      await client.query(
+        `
+        insert Message {
+          message_conversation := (select Conversation filter .id = <uuid>$conversation_id),
+          message_content := <json>$content,
+          message_role := <str>$role,
+        }
+        `,
+        {
+          conversation_id: conversation.id,
+          content: message.content,
+          role: message.role,
+        }
+      );
+    }
   }
 
   const result = streamText({
@@ -95,32 +113,28 @@ export async function POST(req: Request) {
   // Process the stream in the background
   (async () => {
     try {
-      // Send conversation ID at the start of the stream
-      // const data = `f:{"messageId":"msg-xsXGld9wNINC9SOqHfzribCh"}`;
-      // await writer.write(encoder.encode(data));
-      // await writer.write(encoder.encode(data2));
-
       const stream = result.toDataStream();
       if (!stream) return;
 
       const reader = stream.getReader();
-      const testChunk = `0:"<CONV_ID>${conversation.id}</CONV_ID_END>"
-`;
+      const convIdChunk = `0:"<CONV_ID>${conversation.id}</CONV_ID_END>"\n`;
+      await writer.write(encoder.encode(convIdChunk));
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        // Decode the chunk and append to message
+        // Decode the chunk and process it
         const chunk = new TextDecoder().decode(value);
-        assistantMessage += chunk;
-        if (chunk.includes("messageId")) {
-          await writer.write(encoder.encode(chunk));
-          await writer.write(encoder.encode(testChunk));
-        } else {
-          await writer.write(encoder.encode(chunk));
-        }
 
         // Forward the chunk to the client
+        await writer.write(encoder.encode(chunk));
+
+        // Only accumulate content from message chunks (starting with '0:')
+        const messageMatch = chunk.match(/^0:"([^"]+)"/);
+        if (messageMatch) {
+          assistantMessage += messageMatch[1];
+        }
       }
 
       // Save the complete message once streaming is done

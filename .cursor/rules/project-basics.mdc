@@ -11,3 +11,4 @@ alwaysApply: false
 - gel database types include only
 - prefer a functional or imperative style over object-oriented
 - Explain changes only briefly after completing
+- always await nextJS page params
