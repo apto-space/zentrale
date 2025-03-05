@@ -22,25 +22,35 @@ export const ChatPage = () => {
     api: `core/api/chat?sessionId=${sessionId}${
       conversationId ? `&conversationId=${conversationId}` : ""
     }`,
-    // onResponse: (response) => {
-    //   // Check if the response starts with CONVERSATION_ID:
-    //   const reader = response.body?.getReader();
-    //   if (reader) {
-    //     (async () => {
-    //       const { value } = await reader.read();
-    //       const text = new TextDecoder().decode(value);
-    //       if (text.startsWith("CONVERSATION_ID:")) {
-    //         const newConversationId = text.split(":")[1].trim();
-    //         setConversationId(newConversationId);
-    //         // Update URL without full page reload
-    //         router.push(`?conversationId=${newConversationId}`, {
-    //           scroll: false,
-    //         });
-    //       }
-    //     })();
-    //   }
-    // },
+    onResponse: (response_) => {
+      const response = response_.clone();
+      const reader = response.body?.getReader();
+      if (reader) {
+        (async () => {
+          const { value } = await reader.read();
+          const text = new TextDecoder().decode(value);
+          console.log(text);
+
+          // Look for XML tags in the stream
+          const match = text.match(/<CONV_ID>([^<]+)<\/CONV_ID_END>/);
+          if (match) {
+            const newConversationId = match[1];
+            setConversationId(newConversationId);
+            // Update URL without full page reload
+            router.push(`?conversationId=${newConversationId}`, {
+              scroll: false,
+            });
+          }
+        })();
+      }
+    },
   });
+
+  // Filter out the XML tags from messages before rendering
+  const filteredMessages = messages.map((msg) => ({
+    ...msg,
+    content: msg.content.replace(/<CONV_ID>.*?<\/CONV_ID_END>/g, ""),
+  }));
 
   return (
     <div className="h-screen flex flex-col">
@@ -62,7 +72,10 @@ export const ChatPage = () => {
           </div>
         </div> */}
 
-      <ChatMessages messages={messages} isLoading={status == "streaming"} />
+      <ChatMessages
+        messages={filteredMessages}
+        isLoading={status == "streaming"}
+      />
       <TextareaAutosize
         autoFocus
         onKeyDown={(ev) => {

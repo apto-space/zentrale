@@ -1,6 +1,7 @@
 import { anthropic } from "@ai-sdk/anthropic";
 import { streamText } from "ai";
 import { createClient } from "edgedb";
+import test from "node:test";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -95,14 +96,16 @@ export async function POST(req: Request) {
   (async () => {
     try {
       // Send conversation ID at the start of the stream
-      // await writer.write(
-      //   encoder.encode(`CONVERSATION_ID:${conversation.id}\n`)
-      // );
+      // const data = `f:{"messageId":"msg-xsXGld9wNINC9SOqHfzribCh"}`;
+      // await writer.write(encoder.encode(data));
+      // await writer.write(encoder.encode(data2));
 
-      const stream = result.toDataStreamResponse().body;
+      const stream = result.toDataStream();
       if (!stream) return;
 
       const reader = stream.getReader();
+      const testChunk = `0:"<CONV_ID>${conversation.id}</CONV_ID_END>"
+`;
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -110,9 +113,14 @@ export async function POST(req: Request) {
         // Decode the chunk and append to message
         const chunk = new TextDecoder().decode(value);
         assistantMessage += chunk;
+        if (chunk.includes("messageId")) {
+          await writer.write(encoder.encode(chunk));
+          await writer.write(encoder.encode(testChunk));
+        } else {
+          await writer.write(encoder.encode(chunk));
+        }
 
         // Forward the chunk to the client
-        await writer.write(encoder.encode(chunk));
       }
 
       // Save the complete message once streaming is done
