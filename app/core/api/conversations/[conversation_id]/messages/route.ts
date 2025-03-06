@@ -4,6 +4,8 @@ type DBMessage = {
   content: string;
   role: string;
   id: string;
+  parts: any[];
+  tool_invocations: any[];
 };
 
 export async function GET(
@@ -19,6 +21,8 @@ export async function GET(
         content := .message_content,
         role := .message_role,
         id,
+        parts := .message_parts,
+        tool_invocations := .message_tool_invocations,
       } filter .message_conversation.conversation_id = <uuid>$conversation_id
       order by .created_at asc
       `,
@@ -28,7 +32,16 @@ export async function GET(
     );
 
     return Response.json(
-      messages.map((m) => ({ ...m, content: JSON.parse(m.content) }))
+      messages.map((m) => ({
+        ...m,
+        content: (() => {
+          try {
+            return JSON.parse(m.content);
+          } catch {
+            return m.content;
+          }
+        })(),
+      }))
     );
   } catch (error) {
     console.error("Error fetching conversation messages:", error);

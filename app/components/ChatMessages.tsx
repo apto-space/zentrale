@@ -43,7 +43,23 @@ export default function ChatMessages({
                 : "bg-[var(--card-background)] text-[var(--text-primary)] shadow-sm border border-[var(--card-border)]"
             }`}
           >
-            <MarkdownContent content={message.content} />
+            {message.role === "user" ? (
+              <MarkdownContent content={message.content} />
+            ) : (
+              <div className="space-y-2">
+                {message.parts?.map((part, partIndex) => (
+                  <div key={partIndex}>
+                    {part.type === "text" ? (
+                      <MarkdownContent content={part.text} />
+                    ) : (
+                      <pre className="bg-[var(--background)] p-2 rounded overflow-x-auto text-sm">
+                        {JSON.stringify(part, null, 2)}
+                      </pre>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       ))}

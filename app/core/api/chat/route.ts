@@ -7,6 +7,7 @@ import {
 } from "ai";
 import { createClient } from "edgedb";
 import { z } from "zod";
+import { collectStreamEvents } from "./streamCollectionHelpers";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -54,6 +55,8 @@ async function upsertConversation({
           message_conversation := new_conv,
           message_content := <str>$content,
           message_role := <str>$role,
+          message_parts := <array<json>>$parts,
+          message_tool_invocations := <array<json>>$tool_invocations,
         }
       )
     select new_conv {
@@ -66,6 +69,8 @@ async function upsertConversation({
       content: JSON.stringify(nextMessage.content),
       role: nextMessage.role,
       conversation_id: conversationId,
+      parts: [],
+      tool_invocations: [],
     }
   );
 
@@ -87,12 +92,16 @@ async function saveRemainingMessages(
         message_conversation := (select Conversation filter .conversation_id = <uuid>$conversation_id),
         message_content := <str>$content,
         message_role := <str>$role,
+        message_parts := <array<json>>$parts,
+        message_tool_invocations := <array<json>>$tool_invocations,
       }
       `,
       {
         conversation_id: conversationId,
         content: message.content,
         role: message.role,
+        parts: [],
+        tool_invocations: [],
       }
     );
   }
@@ -104,7 +113,7 @@ async function processStreamAndSaveResponse({
   conversation,
 }: StreamProcessParams): Promise<void> {
   const encoder = new TextEncoder();
-  let assistantMessage = "";
+  const events: any[] = [];
 
   try {
     const reader = stream.getReader();
@@ -119,32 +128,30 @@ async function processStreamAndSaveResponse({
       // Forward the chunk to the client
       await writer.write(encoder.encode(chunk));
       const parsed = parseDataStreamPart(chunk);
-      console.log("parsed", parsed);
-      if (parsed.type === "text") {
-        assistantMessage += parsed.value;
-      }
-      // Only accumulate content from message chunks (starting with '0:')
-      // const messageMatch = chunk.match(/^0:"([^"]+)"/);
-      // if (messageMatch) {
-      //   assistantMessage += messageMatch[1];
-      // }
+      events.push(parsed);
     }
 
+    // Collect the full message structure
+    const collectedMessage = collectStreamEvents(events);
+
     // Save the complete message once streaming is done
-    console.log("assistantMessage", assistantMessage);
-    if (assistantMessage) {
+    if (collectedMessage.content) {
       await client.query(
         `
         insert Message {
           message_conversation := (select Conversation filter .conversation_id = <uuid>$conversation_id),
           message_content := <str>$content,
           message_role := <str>$role,
+          message_parts := <array<json>>$parts,
+          message_tool_invocations := <array<json>>$tool_invocations,
         }
         `,
         {
           conversation_id: conversation.conversation_id,
-          content: JSON.stringify(assistantMessage.replaceAll("\\\\", `\\`)),
+          content: collectedMessage.content,
           role: "assistant",
+          parts: collectedMessage.parts,
+          tool_invocations: collectedMessage.toolInvocations,
         }
       );
     }

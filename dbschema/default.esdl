@@ -13,6 +13,8 @@ module default {
         required message_conversation: Conversation {on target delete delete source};
         required message_content: str;
         required message_role: str;
+        required message_parts: array<json>;
+        required message_tool_invocations: array<json>;
         constraint exclusive on ((.message_conversation, .created_at));
     }
 
