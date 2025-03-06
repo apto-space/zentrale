@@ -1,167 +1,11 @@
 import { anthropic } from "@ai-sdk/anthropic";
-import {
-  parseAssistantStreamPart,
-  parseDataStreamPart,
-  streamText,
-  tool,
-} from "ai";
-import { createClient } from "edgedb";
+import { streamText, tool } from "ai";
 import { z } from "zod";
-import { collectStreamEvents } from "./streamCollectionHelpers";
+import { processStreamAndSaveResponse, upsertConversation } from "./dbHelpers";
+import { weatherToolSchema } from "./WeatherTool";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
-
-// Create EdgeDB client
-const client = createClient();
-
-type Conversation = {
-  conversation_id: string;
-  conversation_anon_user_id: string;
-};
-
-type Message = {
-  content: string;
-  role: string;
-};
-
-type StreamProcessParams = {
-  stream: ReadableStream;
-  writer: WritableStreamDefaultWriter;
-  conversation: Conversation;
-};
-
-async function upsertConversation({
-  sessionId,
-  conversationId,
-  nextMessage,
-}: {
-  sessionId: string;
-  conversationId: string;
-  nextMessage: Message;
-}): Promise<Conversation> {
-  const newConversation = await client.querySingle<Conversation>(
-    `
-    with
-      new_conv := (
-        insert Conversation {
-          conversation_anon_user_id := <str>$session_id,
-          conversation_id := <uuid>$conversation_id,
-        }
-       unless conflict on (.conversation_id) else Conversation),
-      # Insert the first message immediately to ensure no conversation exists without messages
-      first_msg := (
-        insert Message {
-          message_conversation := new_conv,
-          message_content := <str>$content,
-          message_role := <str>$role,
-          message_parts := <array<json>>$parts,
-          message_tool_invocations := <array<json>>$tool_invocations,
-        }
-      )
-    select new_conv {
-      conversation_id,
-      conversation_anon_user_id,
-    }
-    `,
-    {
-      session_id: sessionId,
-      content: JSON.stringify(nextMessage.content),
-      role: nextMessage.role,
-      conversation_id: conversationId,
-      parts: [],
-      tool_invocations: [],
-    }
-  );
-
-  if (!newConversation) {
-    throw new Error("Failed to create conversation");
-  }
-
-  return newConversation;
-}
-
-async function saveRemainingMessages(
-  conversationId: string,
-  messages: Message[]
-): Promise<void> {
-  for (const message of messages) {
-    await client.query(
-      `
-      insert Message {
-        message_conversation := (select Conversation filter .conversation_id = <uuid>$conversation_id),
-        message_content := <str>$content,
-        message_role := <str>$role,
-        message_parts := <array<json>>$parts,
-        message_tool_invocations := <array<json>>$tool_invocations,
-      }
-      `,
-      {
-        conversation_id: conversationId,
-        content: message.content,
-        role: message.role,
-        parts: [],
-        tool_invocations: [],
-      }
-    );
-  }
-}
-
-async function processStreamAndSaveResponse({
-  stream,
-  writer,
-  conversation,
-}: StreamProcessParams): Promise<void> {
-  const encoder = new TextEncoder();
-  const events: any[] = [];
-
-  try {
-    const reader = stream.getReader();
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      // Decode the chunk and process it
-      const chunk = new TextDecoder().decode(value);
-
-      // Forward the chunk to the client
-      await writer.write(encoder.encode(chunk));
-      const parsed = parseDataStreamPart(chunk);
-      events.push(parsed);
-    }
-
-    // Collect the full message structure
-    const collectedMessage = collectStreamEvents(events);
-
-    // Save the complete message once streaming is done
-    if (collectedMessage.content) {
-      await client.query(
-        `
-        insert Message {
-          message_conversation := (select Conversation filter .conversation_id = <uuid>$conversation_id),
-          message_content := <str>$content,
-          message_role := <str>$role,
-          message_parts := <array<json>>$parts,
-          message_tool_invocations := <array<json>>$tool_invocations,
-        }
-        `,
-        {
-          conversation_id: conversation.conversation_id,
-          content: collectedMessage.content,
-          role: "assistant",
-          parts: collectedMessage.parts,
-          tool_invocations: collectedMessage.toolInvocations,
-        }
-      );
-    }
-
-    await writer.close();
-  } catch (error) {
-    await writer.abort(error);
-    throw error;
-  }
-}
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
@@ -194,11 +38,7 @@ export async function POST(req: Request) {
       tools: {
         weather: tool({
           description: "Get the weather in a location",
-          parameters: z.object({
-            location: z
-              .string()
-              .describe("The location to get the weather for"),
-          }),
+          parameters: weatherToolSchema,
           execute: async ({ location }) => ({
             location,
             temperature: 72 + Math.floor(Math.random() * 21) - 10,
