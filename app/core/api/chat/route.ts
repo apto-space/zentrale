@@ -9,7 +9,7 @@ export const maxDuration = 30;
 const client = createClient();
 
 type Conversation = {
-  id: string;
+  conversation_id: string;
   conversation_anon_user_id: string;
 };
 
@@ -22,7 +22,6 @@ type StreamProcessParams = {
   stream: ReadableStream;
   writer: WritableStreamDefaultWriter;
   conversation: Conversation;
-  isFresh: boolean;
 };
 
 async function createNewConversation({
@@ -97,17 +96,12 @@ async function processStreamAndSaveResponse({
   stream,
   writer,
   conversation,
-  isFresh,
 }: StreamProcessParams): Promise<void> {
   const encoder = new TextEncoder();
   let assistantMessage = "";
 
   try {
     const reader = stream.getReader();
-    if (isFresh) {
-      const convIdChunk = `0:"<CONV_ID>${conversation.id}</CONV_ID>"\n`;
-      await writer.write(encoder.encode(convIdChunk));
-    }
 
     while (true) {
       const { done, value } = await reader.read();
@@ -127,20 +121,23 @@ async function processStreamAndSaveResponse({
     }
 
     // Save the complete message once streaming is done
-    await client.query(
-      `
-      insert Message {
-        message_conversation := (select Conversation filter .conversation_id = <uuid>$conversation_id),
-        message_content := <str>$content,
-        message_role := <str>$role,
-      }
-    `,
-      {
-        conversation_id: conversation.id,
-        content: assistantMessage,
-        role: "assistant",
-      }
-    );
+    console.log("assistantMessage", assistantMessage);
+    if (assistantMessage) {
+      await client.query(
+        `
+        insert Message {
+          message_conversation := (select Conversation filter .conversation_id = <uuid>$conversation_id),
+          message_content := <str>$content,
+          message_role := <str>$role,
+        }
+        `,
+        {
+          conversation_id: conversation.conversation_id,
+          content: assistantMessage,
+          role: "assistant",
+        }
+      );
+    }
 
     await writer.close();
   } catch (error) {
@@ -164,29 +161,20 @@ export async function POST(req: Request) {
   }
 
   try {
-    // let conversation: Conversation;
-    const isFresh = !conversationId;
+    const isFresh = messages.length === 1;
     const firstMessage = messages[0];
+
+    // Create or get conversation
     const conversation = await createNewConversation({
       sessionId,
       conversationId,
       firstMessage,
     });
 
-    // if (conversationId) {
-    //   // Fetch existing conversation
-    //   conversation = await getExistingConversation(conversationId);
-    // } else {
-    //   // Create new conversation with its first message
-    //   const firstMessage = messages[0];
-    //   conversation = await createNewConversation({
-    //     sessionId,
-    //     conversationId,
-    //     firstMessage,
-    //   });
-    //   // Save any remaining messages
-    //   await saveRemainingMessages(conversation.id, messages.slice(1));
-    // }
+    // Save any remaining messages if not fresh
+    if (!isFresh) {
+      await saveRemainingMessages(conversationId, messages.slice(1));
+    }
 
     const result = streamText({
       model: anthropic("claude-3-5-haiku-latest"),
@@ -207,7 +195,6 @@ export async function POST(req: Request) {
           stream,
           writer,
           conversation,
-          isFresh,
         });
       } catch (error) {
         console.error("Error processing stream:", error);

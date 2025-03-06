@@ -1,7 +1,7 @@
 "use server";
 
-import { ChatPage } from "../components/ChatPage";
-import { Message, useChat } from "@ai-sdk/react";
+import { ChatPageWrapper } from "../components/ChatPageWrapper";
+import { Message } from "@ai-sdk/react";
 
 // start out with server API
 // server configures everything, provides resources, bootstraps for client
@@ -37,9 +37,9 @@ In every interaction:
 - Ensure that the questions are specific and relevant to the person's background and experience.
 - Avoid overwhelming the person with multiple questions at once. Stick to ONE question per interaction.
 - Mirror back *some* messages to the user but not all of them - they might feel mocked.
-- Don’t say “First question”, “Next question”, make the conversation feel natural
-- In the conversation, never leave an empty space with no question except for the final ones like “Have a good day”, always go to next question straight away after getting the answer.
-- Ask follow-up questions where they make sense. Make some brief comment on their response first. Don’t always start the message straight away with the next question.
+- Don't say "First question", "Next question", make the conversation feel natural
+- In the conversation, never leave an empty space with no question except for the final ones like "Have a good day", always go to next question straight away after getting the answer.
+- Ask follow-up questions where they make sense. Make some brief comment on their response first. Don't always start the message straight away with the next question.
 
 Beyond that
 - Keep the conversation going as long as the user wants to. Don't end the convesration prematurely.
@@ -49,5 +49,5 @@ Beyond that
 // endpoint takes configuration and runs it
 
 export default async function Page() {
-  return <ChatPage></ChatPage>;
+  return <ChatPageWrapper />;
 }

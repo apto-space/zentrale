@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Menu, X } from "lucide-react";
 
 type Conversation = {
-  id: string;
+  conversation_id: string;
   created_at: string;
   conversation_message_count: number;
 };
@@ -17,6 +17,7 @@ export const ConversationSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  console.log("isloading", isLoading);
 
   const fetchConversations = async () => {
     try {
@@ -45,8 +46,8 @@ export const ConversationSidebar = () => {
     const conversationId = searchParams.get("conversationId");
     const isFresh = searchParams.get("fresh");
 
-    // If we have a conversation ID but no fresh flag, refresh the list
-    if (conversationId && !isFresh) {
+    // If we have a conversation ID and it's fresh, refresh the list
+    if (conversationId && isFresh === "true") {
       fetchConversations();
     }
   }, [searchParams]);
@@ -110,7 +111,7 @@ export const ConversationSidebar = () => {
     );
   };
 
-  // Hide the sidebar completely if there are no conversations and no error
+  // Hide the sidebar if there are no conversations and no error
   if (!isLoading && !error && conversations.length === 0) {
     return null;
   }

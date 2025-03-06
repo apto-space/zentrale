@@ -1,6 +1,5 @@
 "use client";
 import ChatMessages from "./ChatMessages";
-import { useAnonSession } from "../hooks/useAnonSession";
 import { EmptyState } from "./EmptyState";
 import { ChatInput } from "./ChatInput";
 import { ConversationSidebar } from "./ConversationSidebar";
@@ -10,16 +9,13 @@ import { useConversationChatV2 } from "../hooks/useConversationChatV2";
 // decoding conversations
 // navigating fixes (fresh (replacestate))
 
-export const ChatPage = () => {
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    status,
-    append,
-    id,
-  } = useConversationChatV2();
+interface ChatPageProps {
+  conversationId: string;
+}
+
+export const ChatPage = ({ conversationId }: ChatPageProps) => {
+  const { messages, input, handleInputChange, handleSubmit, status, append } =
+    useConversationChatV2(conversationId);
 
   const handleQuestionClick = (question: string) => {
     // Set the input value to the clicked question
@@ -30,30 +26,24 @@ export const ChatPage = () => {
   };
 
   return (
-    <div className="h-screen flex">
-      <ConversationSidebar />
-      <div className="flex-1 flex flex-col">
-        {messages.length === 0 ? (
-          <EmptyState
-            onQuestionClick={handleQuestionClick}
+    <div className="flex-1 flex flex-col">
+      {messages.length === 0 ? (
+        <EmptyState
+          onQuestionClick={handleQuestionClick}
+          input={input}
+          handleInputChange={handleInputChange}
+          handleSubmit={handleSubmit}
+        />
+      ) : (
+        <>
+          <ChatMessages messages={messages} isLoading={status == "streaming"} />
+          <ChatInput
             input={input}
             handleInputChange={handleInputChange}
             handleSubmit={handleSubmit}
           />
-        ) : (
-          <>
-            <ChatMessages
-              messages={messages}
-              isLoading={status == "streaming"}
-            />
-            <ChatInput
-              input={input}
-              handleInputChange={handleInputChange}
-              handleSubmit={handleSubmit}
-            />
-          </>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };
