@@ -63,7 +63,7 @@ async function createNewConversation(
       first_msg := (
         insert Message {
           message_conversation := new_conv,
-          message_content := <json>$content,
+          message_content := <str>$content,
           message_role := <str>$role,
         }
       )
@@ -95,7 +95,7 @@ async function saveRemainingMessages(
       `
       insert Message {
         message_conversation := (select Conversation filter .id = <uuid>$conversation_id),
-        message_content := <json>$content,
+        message_content := <str>$content,
         message_role := <str>$role,
       }
       `,
@@ -146,7 +146,7 @@ async function processStreamAndSaveResponse({
       `
       insert Message {
         message_conversation := (select Conversation filter .id = <uuid>$conversation_id),
-        message_content := <json>$content,
+        message_content := <str>$content,
         message_role := <str>$role,
       }
     `,

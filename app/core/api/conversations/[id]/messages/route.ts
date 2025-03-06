@@ -1,5 +1,11 @@
 import { createClient } from "edgedb";
 
+type DBMessage = {
+  content: string;
+  role: string;
+  id: string;
+};
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -7,7 +13,7 @@ export async function GET(
   const client = createClient();
 
   try {
-    const messages = await client.query(
+    const messages = await client.query<DBMessage>(
       `
       with conversation := (
         select Conversation filter .id = <uuid>$conversation_id

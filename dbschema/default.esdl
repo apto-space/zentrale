@@ -10,7 +10,7 @@ module default {
 
     type Message extending Timestamped {
         required message_conversation: Conversation {on target delete delete source};
-        required message_content: json;
+        required message_content: str;
         required message_role: str;
         constraint exclusive on ((.message_conversation, .created_at));
     }

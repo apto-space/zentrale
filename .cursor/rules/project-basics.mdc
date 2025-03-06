@@ -1,12 +1,12 @@
 ---
 description: Always use this
-globs: *
+globs: **/*.*
 alwaysApply: false
 ---
 
 # Project context
 - We are using bun instead of npm
-- The db schema is at [default.esdl](mdc:dbschema/default.esdl)
+- The db schema is at [default.esdl](mdc:dbschema/default.esdl). Read it carefully and respect it.
 - gel is the database, it's previously called 'edgedb'
 - gel database types include only
 - prefer a functional or imperative style over object-oriented

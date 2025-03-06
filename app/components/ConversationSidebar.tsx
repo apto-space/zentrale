@@ -66,7 +66,7 @@ export const ConversationSidebar = () => {
         window.location.href
       ).searchParams.get("conversationId");
       if (currentConversationId === id) {
-        router.push("/");
+        router.push("/core");
       }
 
       // Refresh the conversations list
