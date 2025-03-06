@@ -12,35 +12,35 @@ export const useConversationChat = () => {
   const [initialMessages, setInitialMessages] = useState<Message[]>([]);
 
   // Load conversation messages when ID is present
-  useEffect(() => {
-    const loadConversation = async () => {
-      const urlConversationId = searchParams.get("conversationId");
-      const isFresh = searchParams.get("fresh") === "true";
+  //   useEffect(() => {
+  //     const loadConversation = async () => {
+  //       const urlConversationId = searchParams.get("conversationId");
+  //       const isFresh = searchParams.get("fresh") === "true";
 
-      if (!urlConversationId || isFresh) {
-        setConversationId(null);
-        setInitialMessages([]);
-        return;
-      }
+  //       if (!urlConversationId || isFresh) {
+  //         setConversationId(null);
+  //         setInitialMessages([]);
+  //         return;
+  //       }
 
-      try {
-        const response = await fetch(
-          `/core/api/conversations/${urlConversationId}/messages`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to load conversation");
-        }
-        const messages = await response.json();
-        setInitialMessages(messages);
-        setConversationId(urlConversationId);
-      } catch (error) {
-        console.error("Error loading conversation:", error);
-        router.replace("/", { scroll: false });
-      }
-    };
+  //       try {
+  //         const response = await fetch(
+  //           `/core/api/conversations/${urlConversationId}/messages`
+  //         );
+  //         if (!response.ok) {
+  //           throw new Error("Failed to load conversation");
+  //         }
+  //         const messages = await response.json();
+  //         setInitialMessages(messages);
+  //         setConversationId(urlConversationId);
+  //       } catch (error) {
+  //         console.error("Error loading conversation:", error);
+  //         router.replace("/", { scroll: false });
+  //       }
+  //     };
 
-    loadConversation();
-  }, [searchParams]);
+  //     loadConversation();
+  //   }, [searchParams]);
 
   const chat = useChat({
     api: `core/api/chat?sessionId=${sessionId}${

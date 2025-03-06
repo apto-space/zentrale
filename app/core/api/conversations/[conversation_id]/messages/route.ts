@@ -8,27 +8,25 @@ type DBMessage = {
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ conversation_id: string }> }
 ) {
   const client = createClient();
+  console.log("getting messages");
 
   try {
     const messages = await client.query<DBMessage>(
-      `
-      with conversation := (
-        select Conversation filter .id = <uuid>$conversation_id
-      )
-      select Message {
+      `select Message {
         content := .message_content,
         role := .message_role,
         id,
-      } filter .message_conversation = conversation
+      } filter .message_conversation.conversation_id = <uuid>$conversation_id
       order by .created_at asc
       `,
       {
-        conversation_id: (await params).id,
+        conversation_id: (await params).conversation_id,
       }
     );
+    console.log("got messages", messages);
 
     return Response.json(messages);
   } catch (error) {

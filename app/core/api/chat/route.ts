@@ -25,40 +25,24 @@ type StreamProcessParams = {
   isFresh: boolean;
 };
 
-async function getExistingConversation(
-  conversationId: string
-): Promise<Conversation> {
-  const existingConversation = await client.querySingle<Conversation>(
-    `
-    select Conversation {
-      id,
-      conversation_anon_user_id,
-    } filter .id = <uuid>$conversation_id
-    `,
-    {
-      conversation_id: conversationId,
-    }
-  );
-
-  if (!existingConversation) {
-    throw new Error("Conversation not found");
-  }
-
-  return existingConversation;
-}
-
-async function createNewConversation(
-  sessionId: string,
-  firstMessage: Message
-): Promise<Conversation> {
+async function createNewConversation({
+  sessionId,
+  conversationId,
+  firstMessage,
+}: {
+  sessionId: string;
+  conversationId: string;
+  firstMessage: Message;
+}): Promise<Conversation> {
   const newConversation = await client.querySingle<Conversation>(
     `
     with
       new_conv := (
         insert Conversation {
           conversation_anon_user_id := <str>$session_id,
+          conversation_id := <uuid>$conversation_id,
         }
-      ),
+       unless conflict on (.conversation_id) else Conversation),
       # Insert the first message immediately to ensure no conversation exists without messages
       first_msg := (
         insert Message {
@@ -68,7 +52,7 @@ async function createNewConversation(
         }
       )
     select new_conv {
-      id,
+      conversation_id,
       conversation_anon_user_id,
     }
     `,
@@ -76,6 +60,7 @@ async function createNewConversation(
       session_id: sessionId,
       content: firstMessage.content,
       role: firstMessage.role,
+      conversation_id: conversationId,
     }
   );
 
@@ -94,7 +79,7 @@ async function saveRemainingMessages(
     await client.query(
       `
       insert Message {
-        message_conversation := (select Conversation filter .id = <uuid>$conversation_id),
+        message_conversation := (select Conversation filter .conversation_id = <uuid>$conversation_id),
         message_content := <str>$content,
         message_role := <str>$role,
       }
@@ -145,7 +130,7 @@ async function processStreamAndSaveResponse({
     await client.query(
       `
       insert Message {
-        message_conversation := (select Conversation filter .id = <uuid>$conversation_id),
+        message_conversation := (select Conversation filter .conversation_id = <uuid>$conversation_id),
         message_content := <str>$content,
         message_role := <str>$role,
       }
@@ -170,24 +155,38 @@ export async function POST(req: Request) {
   const sessionId = url.searchParams.get("sessionId");
   const conversationId = url.searchParams.get("conversationId");
 
+  if (!conversationId) {
+    return new Response("Conversation ID is required", { status: 400 });
+  }
+
   if (!sessionId) {
     return new Response("Session ID is required", { status: 400 });
   }
 
   try {
-    let conversation: Conversation;
+    // let conversation: Conversation;
     const isFresh = !conversationId;
+    const firstMessage = messages[0];
+    const conversation = await createNewConversation({
+      sessionId,
+      conversationId,
+      firstMessage,
+    });
 
-    if (conversationId) {
-      // Fetch existing conversation
-      conversation = await getExistingConversation(conversationId);
-    } else {
-      // Create new conversation with its first message
-      const firstMessage = messages[0];
-      conversation = await createNewConversation(sessionId, firstMessage);
-      // Save any remaining messages
-      await saveRemainingMessages(conversation.id, messages.slice(1));
-    }
+    // if (conversationId) {
+    //   // Fetch existing conversation
+    //   conversation = await getExistingConversation(conversationId);
+    // } else {
+    //   // Create new conversation with its first message
+    //   const firstMessage = messages[0];
+    //   conversation = await createNewConversation({
+    //     sessionId,
+    //     conversationId,
+    //     firstMessage,
+    //   });
+    //   // Save any remaining messages
+    //   await saveRemainingMessages(conversation.id, messages.slice(1));
+    // }
 
     const result = streamText({
       model: anthropic("claude-3-5-haiku-latest"),

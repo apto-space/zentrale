@@ -4,7 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Trash2, Plus } from "lucide-react";
 
 type Conversation = {
-  id: string;
+  conversation_id: string;
   created_at: string;
   conversation_message_count: number;
 };
@@ -49,11 +49,11 @@ export const ConversationList = ({
       </h2>
       <div className="space-y-2">
         {conversations.map((conv) => (
-          <div key={conv.id} className="group relative">
+          <div key={conv.conversation_id} className="group relative">
             <button
-              onClick={() => handleConversationSelect(conv.id)}
+              onClick={() => handleConversationSelect(conv.conversation_id)}
               className={`text-left p-2 w-full rounded-lg transition-colors cursor-pointer ${
-                currentConversationId === conv.id
+                currentConversationId === conv.conversation_id
                   ? "bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]"
                   : "hover:bg-[var(--hover-background)] border-[var(--card-border)]"
               } border`}
@@ -70,7 +70,7 @@ export const ConversationList = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete(conv.id);
+                onDelete(conv.conversation_id);
               }}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-opacity"
             >

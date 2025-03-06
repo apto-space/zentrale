@@ -2,7 +2,7 @@ import { createClient } from "edgedb";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { conversation_id: string } }
 ) {
   const client = createClient();
 
@@ -10,13 +10,13 @@ export async function DELETE(
     await client.query(
       `
       with
-        target := (select Conversation filter .id = <uuid>$conversation_id),
+        target := (select Conversation filter .conversation_id = <uuid>$conversation_id),
         # Delete all messages first due to the constraint
         del_msgs := (delete Message filter .message_conversation = target)
       delete target
       `,
       {
-        conversation_id: params.id,
+        conversation_id: params.conversation_id,
       }
     );
 

@@ -13,7 +13,7 @@ export async function GET() {
     const conversations = await client.query<Conversation>(
       `
       select Conversation {
-        id,
+        conversation_id,
         created_at,
         conversation_message_count,
       } filter exists .conversation_messages order by .created_at desc
