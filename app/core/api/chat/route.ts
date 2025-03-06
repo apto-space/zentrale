@@ -1,5 +1,5 @@
 import { anthropic } from "@ai-sdk/anthropic";
-import { streamText } from "ai";
+import { parseAssistantStreamPart, parseDataStreamPart, streamText } from "ai";
 import { createClient } from "edgedb";
 
 // Allow streaming responses up to 30 seconds
@@ -57,7 +57,7 @@ async function upsertConversation({
     `,
     {
       session_id: sessionId,
-      content: nextMessage.content,
+      content: JSON.stringify(nextMessage.content),
       role: nextMessage.role,
       conversation_id: conversationId,
     }
@@ -112,12 +112,16 @@ async function processStreamAndSaveResponse({
 
       // Forward the chunk to the client
       await writer.write(encoder.encode(chunk));
-
-      // Only accumulate content from message chunks (starting with '0:')
-      const messageMatch = chunk.match(/^0:"([^"]+)"/);
-      if (messageMatch) {
-        assistantMessage += messageMatch[1];
+      const parsed = parseDataStreamPart(chunk);
+      // console.log("parsed", parsed);
+      if (parsed.type === "text") {
+        assistantMessage += parsed.value;
       }
+      // Only accumulate content from message chunks (starting with '0:')
+      // const messageMatch = chunk.match(/^0:"([^"]+)"/);
+      // if (messageMatch) {
+      //   assistantMessage += messageMatch[1];
+      // }
     }
 
     // Save the complete message once streaming is done
@@ -133,7 +137,7 @@ async function processStreamAndSaveResponse({
         `,
         {
           conversation_id: conversation.conversation_id,
-          content: assistantMessage,
+          content: JSON.stringify(assistantMessage.replaceAll("\\\\", `\\`)),
           role: "assistant",
         }
       );
