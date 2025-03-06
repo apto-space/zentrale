@@ -15,7 +15,7 @@ export const ChatInput = ({
   placeholder = "Type your message here...",
 }: ChatInputProps) => {
   return (
-    <div className="flex items-end gap-2 p-4 border-t">
+    <div className="flex items-end gap-2 p-4">
       <TextareaAutosize
         autoFocus
         onKeyDown={(ev) => {
@@ -27,12 +27,12 @@ export const ChatInput = ({
         onChange={handleInputChange}
         value={input}
         placeholder={placeholder}
-        className="flex-1 p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        className="flex-1 p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] resize-none bg-[var(--input-background)] border-[var(--input-border)] text-[var(--text-primary)] placeholder-[var(--text-secondary)]"
       />
       <button
         onClick={handleSubmit}
         disabled={!input.trim()}
-        className="p-4 rounded-full bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="p-4 rounded-full bg-[var(--accent-primary)] text-[var(--background)] hover:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <Send className="w-5 h-5" />
       </button>

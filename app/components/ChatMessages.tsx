@@ -28,7 +28,7 @@ export default function ChatMessages({
   }, [messages]);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[var(--background)]">
       {messages.map((message, index) => (
         <div
           key={index}
@@ -39,8 +39,8 @@ export default function ChatMessages({
           <div
             className={`max-w-[80%] rounded-lg p-4 ${
               message.role === "user"
-                ? "bg-blue-500 text-white"
-                : "bg-white text-gray-800 shadow-sm"
+                ? "bg-[var(--accent-primary)] text-white"
+                : "bg-[var(--card-background)] text-[var(--text-primary)] shadow-sm border border-[var(--card-border)]"
             }`}
           >
             <MarkdownContent content={message.content} />
@@ -49,11 +49,11 @@ export default function ChatMessages({
       ))}
       {isLoading && (
         <div className="flex justify-start">
-          <div className="bg-white rounded-lg p-4 shadow-sm">
+          <div className="bg-[var(--card-background)] rounded-lg p-4 shadow-sm border border-[var(--card-border)]">
             <div className="flex space-x-2">
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100" />
-              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200" />
+              <div className="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce" />
+              <div className="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce delay-100" />
+              <div className="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce delay-200" />
             </div>
           </div>
         </div>

@@ -12,66 +12,72 @@ type Conversation = {
 type ConversationListProps = {
   conversations: Conversation[];
   onDelete: (id: string) => void;
+  onSelect?: () => void;
 };
 
 export const ConversationList = ({
   conversations,
   onDelete,
+  onSelect,
 }: ConversationListProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentConversationId = searchParams.get("conversationId");
 
   const handleNewChat = () => {
-    router.push("/");
+    router.push("/core");
+    onSelect?.();
+  };
+
+  const handleConversationSelect = (id: string) => {
+    router.push(`?conversationId=${id}`);
+    onSelect?.();
   };
 
   return (
-    <div className="w-64 border-r border-gray-200 h-full overflow-y-auto">
-      <div className="p-4">
-        <button
-          onClick={handleNewChat}
-          className="w-full mb-4 p-2 flex items-center justify-center gap-2 text-gray-700 hover:text-gray-900 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          New Chat
-        </button>
+    <div className="box-border border-[var(--card-border)] h-full overflow-y-auto flex flex-col gap-2">
+      <button
+        onClick={handleNewChat}
+        className="p-2 flex items-center justify-center gap-2 cursor-pointer text-[var(--text-primary)] hover:text-[var(--text-primary)] rounded-lg border border-[var(--card-border)] hover:border-[var(--accent-primary)] hover:bg-[var(--hover-background)] transition-colors"
+      >
+        <Plus className="w-4 h-4" />
+        New Chat
+      </button>
 
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">
-          Conversations
-        </h2>
-        <div className="space-y-2">
-          {conversations.map((conv) => (
-            <div key={conv.id} className="group relative">
-              <button
-                onClick={() => router.push(`?conversationId=${conv.id}`)}
-                className={`w-full text-left p-3 rounded-lg transition-colors ${
-                  currentConversationId === conv.id
-                    ? "bg-blue-50 border-blue-200"
-                    : "hover:bg-gray-50 border-gray-200"
-                } border`}
-              >
-                <div className="text-sm text-gray-600">
-                  {formatDistanceToNow(new Date(conv.created_at), {
-                    addSuffix: true,
-                  })}
-                </div>
-                <div className="text-sm font-medium text-gray-800">
-                  {conv.conversation_message_count} messages
-                </div>
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(conv.id);
-                }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-opacity"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
-        </div>
+      <h2 className="text-lg font-semibold text-[var(--text-primary)] my-4">
+        Conversations
+      </h2>
+      <div className="space-y-2">
+        {conversations.map((conv) => (
+          <div key={conv.id} className="group relative">
+            <button
+              onClick={() => handleConversationSelect(conv.id)}
+              className={`text-left p-2 w-full rounded-lg transition-colors cursor-pointer ${
+                currentConversationId === conv.id
+                  ? "bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]"
+                  : "hover:bg-[var(--hover-background)] border-[var(--card-border)]"
+              } border`}
+            >
+              <div className="text-sm text-[var(--text-secondary)]">
+                {formatDistanceToNow(new Date(conv.created_at), {
+                  addSuffix: true,
+                })}
+              </div>
+              <div className="text-sm font-medium text-[var(--text-primary)]">
+                {conv.conversation_message_count} messages
+              </div>
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(conv.id);
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-opacity"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );

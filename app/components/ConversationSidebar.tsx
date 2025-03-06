@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ConversationList } from "./ConversationList";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Menu, X } from "lucide-react";
 
 type Conversation = {
   id: string;
@@ -13,7 +14,9 @@ export const ConversationSidebar = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const fetchConversations = async () => {
     try {
@@ -32,9 +35,21 @@ export const ConversationSidebar = () => {
     }
   };
 
+  // Fetch conversations initially and when URL changes
   useEffect(() => {
     fetchConversations();
   }, []);
+
+  // Watch for new conversations being created
+  useEffect(() => {
+    const conversationId = searchParams.get("conversationId");
+    const isFresh = searchParams.get("fresh");
+
+    // If we have a conversation ID but no fresh flag, refresh the list
+    if (conversationId && !isFresh) {
+      fetchConversations();
+    }
+  }, [searchParams]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -56,27 +71,25 @@ export const ConversationSidebar = () => {
 
       // Refresh the conversations list
       fetchConversations();
+
+      // Close sidebar on mobile after deletion
+      setIsOpen(false);
     } catch (error) {
       console.error("Error deleting conversation:", error);
     }
   };
 
-  // Hide the sidebar if there are no conversations and no error
-  if (!isLoading && !error && conversations.length === 0) {
-    return null;
-  }
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
 
-  if (error) {
-    return (
-      <div className="w-64 border-r border-gray-200 h-full p-4">
-        <div className="text-red-500">Error: {error}</div>
-      </div>
-    );
-  }
+  const sidebarContent = () => {
+    if (error) {
+      return <div className="text-red-500">Error: {error}</div>;
+    }
 
-  if (isLoading) {
-    return (
-      <div className="w-64 border-r border-gray-200 h-full p-4">
+    if (isLoading) {
+      return (
         <div className="animate-pulse">
           <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
           {[...Array(5)].map((_, i) => (
@@ -85,11 +98,49 @@ export const ConversationSidebar = () => {
             </div>
           ))}
         </div>
-      </div>
+      );
+    }
+
+    return (
+      <ConversationList
+        conversations={conversations}
+        onDelete={handleDelete}
+        onSelect={() => setIsOpen(false)}
+      />
     );
+  };
+
+  // Hide the sidebar completely if there are no conversations and no error
+  if (!isLoading && !error && conversations.length === 0) {
+    return null;
   }
 
   return (
-    <ConversationList conversations={conversations} onDelete={handleDelete} />
+    <>
+      {/* Mobile toggle button */}
+      <button
+        onClick={toggleSidebar}
+        className="fixed top-4 left-4 p-2 rounded-lg bg-[var(--card-background)] shadow-md md:hidden z-50 border border-[var(--card-border)]"
+      >
+        {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+      </button>
+
+      {/* Sidebar */}
+      <div
+        className={`fixed inset-y-0 left-0 transform ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-40 bg-[var(--card-background)] w-64 border-r border-[var(--card-border)] h-full overflow-y-auto`}
+      >
+        <div className="p-4">{sidebarContent()}</div>
+      </div>
+
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 md:hidden z-30"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+    </>
   );
 };

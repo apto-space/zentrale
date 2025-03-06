@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Always use this
+globs: *
 alwaysApply: false
 ---
 

@@ -23,10 +23,10 @@ export const EmptyState = ({
   return (
     <div className="flex flex-col items-center justify-center h-full p-4">
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+        <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
           Welcome to the Chat!
         </h1>
-        <p className="text-gray-600">
+        <p className="text-[var(--text-secondary)]">
           I'm here to help you with any questions you might have.
         </p>
       </div>
@@ -37,7 +37,7 @@ export const EmptyState = ({
             <button
               key={index}
               onClick={() => onQuestionClick(query)}
-              className="p-4 text-left rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-colors"
+              className="p-4 text-left rounded-lg border border-[var(--card-border)] hover:border-[var(--accent-primary)] hover:bg-[var(--hover-background)] transition-colors text-[var(--text-primary)]"
             >
               {query}
             </button>

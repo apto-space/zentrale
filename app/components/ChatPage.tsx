@@ -7,13 +7,12 @@ import { ConversationSidebar } from "./ConversationSidebar";
 import { useConversationChat } from "../hooks/useConversationChat";
 
 // next steps
-// anon auth to keep history
-// init DB
+// decoding conversations
+// navigating fixes (fresh (replacestate))
 
 export const ChatPage = () => {
-  const { id: sessionId } = useAnonSession();
   const { messages, input, handleInputChange, handleSubmit, status, append } =
-    useConversationChat(sessionId);
+    useConversationChat();
 
   const handleQuestionClick = (question: string) => {
     // Set the input value to the clicked question

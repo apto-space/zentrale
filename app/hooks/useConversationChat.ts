@@ -2,8 +2,10 @@ import { useChat, Message } from "@ai-sdk/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "edgedb";
+import { useAnonSession } from "./useAnonSession";
 
-export const useConversationChat = (sessionId: string) => {
+export const useConversationChat = () => {
+  const { id: sessionId } = useAnonSession();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -13,7 +15,9 @@ export const useConversationChat = (sessionId: string) => {
   useEffect(() => {
     const loadConversation = async () => {
       const urlConversationId = searchParams.get("conversationId");
-      if (!urlConversationId) {
+      const isFresh = searchParams.get("fresh") === "true";
+
+      if (!urlConversationId || isFresh) {
         setConversationId(null);
         setInitialMessages([]);
         return;
@@ -35,7 +39,7 @@ export const useConversationChat = (sessionId: string) => {
       }
     };
 
-    // loadConversation();
+    loadConversation();
   }, [searchParams]);
 
   const chat = useChat({
@@ -53,12 +57,15 @@ export const useConversationChat = (sessionId: string) => {
           console.log(text);
 
           // Look for XML tags in the stream
-          const match = text.match(/<CONV_ID>([^<]+)<\/CONV_ID_END>/);
+          const match = text.match(/<CONV_ID>([^<]+)<\/CONV_ID>/);
           if (match) {
             const newConversationId = match[1];
             setConversationId(newConversationId);
-            // Update URL without full page reload
-            router.push(`?conversationId=${newConversationId}`, {
+            // Update URL without full page reload, remove fresh parameter if it exists
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set("conversationId", newConversationId);
+            newParams.set("fresh", "true");
+            router.push(`?${newParams.toString()}`, {
               scroll: false,
             });
           }
@@ -70,7 +77,7 @@ export const useConversationChat = (sessionId: string) => {
   // Filter out the XML tags from messages before rendering
   const messages = chat.messages.map((msg) => ({
     ...msg,
-    content: msg.content.replace(/<CONV_ID>.*?<\/CONV_ID_END>/g, ""),
+    content: msg.content.replace(/<CONV_ID>.*?<\/CONV_ID>/g, ""),
   }));
 
   return {
