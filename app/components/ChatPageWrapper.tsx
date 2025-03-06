@@ -10,6 +10,7 @@ export const ChatPageWrapper = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [conversationId, setConversationId] = useState<string>(() => v4());
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const urlConversationId = searchParams.get("conversationId");
@@ -28,10 +29,19 @@ export const ChatPageWrapper = () => {
   if (!conversationId) {
     return null; // or a loading state
   }
+
+  const handleConversationUpdate = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
+
   return (
     <div className="h-screen flex">
-      <ConversationSidebar />
-      <ChatPage key={conversationId} conversationId={conversationId} />
+      <ConversationSidebar key={refreshKey} />
+      <ChatPage
+        key={conversationId}
+        conversationId={conversationId}
+        onConversationUpdate={handleConversationUpdate}
+      />
     </div>
   );
 };

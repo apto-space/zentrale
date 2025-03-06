@@ -3,7 +3,10 @@ import { useChat } from "@ai-sdk/react";
 import { useAnonSession } from "./useAnonSession";
 import { useEffect, useRef } from "react";
 
-export const useConversationChatV2 = (conversationId: string) => {
+export const useConversationChatV2 = (
+  conversationId: string,
+  onStreamComplete?: () => void
+) => {
   const { id: sessionId } = useAnonSession();
   const streamRef = useRef<Response>(null);
 
@@ -12,6 +15,9 @@ export const useConversationChatV2 = (conversationId: string) => {
     id: conversationId,
     onResponse: (response) => {
       streamRef.current = response;
+    },
+    onFinish: () => {
+      onStreamComplete?.();
     },
   });
 

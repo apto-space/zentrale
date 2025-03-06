@@ -24,14 +24,14 @@ type StreamProcessParams = {
   conversation: Conversation;
 };
 
-async function createNewConversation({
+async function upsertConversation({
   sessionId,
   conversationId,
-  firstMessage,
+  nextMessage,
 }: {
   sessionId: string;
   conversationId: string;
-  firstMessage: Message;
+  nextMessage: Message;
 }): Promise<Conversation> {
   const newConversation = await client.querySingle<Conversation>(
     `
@@ -57,8 +57,8 @@ async function createNewConversation({
     `,
     {
       session_id: sessionId,
-      content: firstMessage.content,
-      role: firstMessage.role,
+      content: nextMessage.content,
+      role: nextMessage.role,
       conversation_id: conversationId,
     }
   );
@@ -161,20 +161,14 @@ export async function POST(req: Request) {
   }
 
   try {
-    const isFresh = messages.length === 1;
-    const firstMessage = messages[0];
+    const nextMessage = messages[0];
 
     // Create or get conversation
-    const conversation = await createNewConversation({
+    const conversation = await upsertConversation({
       sessionId,
       conversationId,
-      firstMessage,
+      nextMessage,
     });
-
-    // Save any remaining messages if not fresh
-    if (!isFresh) {
-      await saveRemainingMessages(conversationId, messages.slice(1));
-    }
 
     const result = streamText({
       model: anthropic("claude-3-5-haiku-latest"),

@@ -11,11 +11,15 @@ import { useConversationChatV2 } from "../hooks/useConversationChatV2";
 
 interface ChatPageProps {
   conversationId: string;
+  onConversationUpdate?: () => void;
 }
 
-export const ChatPage = ({ conversationId }: ChatPageProps) => {
+export const ChatPage = ({
+  conversationId,
+  onConversationUpdate,
+}: ChatPageProps) => {
   const { messages, input, handleInputChange, handleSubmit, status, append } =
-    useConversationChatV2(conversationId);
+    useConversationChatV2(conversationId, onConversationUpdate);
 
   const handleQuestionClick = (question: string) => {
     // Set the input value to the clicked question
