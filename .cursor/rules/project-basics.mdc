@@ -12,3 +12,5 @@ alwaysApply: false
 - prefer a functional or imperative style over object-oriented
 - Explain changes only briefly after completing
 - always await nextJS page params
+- use bun:test for unit tests
+- do not install new packages unless prompted to do so

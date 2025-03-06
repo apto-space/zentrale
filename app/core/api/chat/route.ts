@@ -119,7 +119,7 @@ async function processStreamAndSaveResponse({
       // Forward the chunk to the client
       await writer.write(encoder.encode(chunk));
       const parsed = parseDataStreamPart(chunk);
-      // console.log("parsed", parsed);
+      console.log("parsed", parsed);
       if (parsed.type === "text") {
         assistantMessage += parsed.value;
       }
