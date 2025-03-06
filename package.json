@@ -23,7 +23,8 @@
     "react-markdown": "^10.0.1",
     "react-textarea-autosize": "^8.5.7",
     "uuid": "^11.1.0",
-    "yet-another-react-lightbox": "^3.21.7"
+    "yet-another-react-lightbox": "^3.21.7",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "typescript": "^5",

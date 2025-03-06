@@ -20,6 +20,8 @@ export const ChatPage = ({
 }: ChatPageProps) => {
   const { messages, input, handleInputChange, handleSubmit, status, append } =
     useConversationChatV2(conversationId, onConversationUpdate);
+  const lastMessage = messages[messages.length - 1];
+  console.log("lastMessage", lastMessage);
 
   const handleQuestionClick = (question: string) => {
     // Set the input value to the clicked question

@@ -1,6 +1,12 @@
 import { anthropic } from "@ai-sdk/anthropic";
-import { parseAssistantStreamPart, parseDataStreamPart, streamText } from "ai";
+import {
+  parseAssistantStreamPart,
+  parseDataStreamPart,
+  streamText,
+  tool,
+} from "ai";
 import { createClient } from "edgedb";
+import { z } from "zod";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -178,6 +184,20 @@ export async function POST(req: Request) {
       model: anthropic("claude-3-5-haiku-latest"),
       system: "You are a helpful assistant.",
       messages,
+      tools: {
+        weather: tool({
+          description: "Get the weather in a location",
+          parameters: z.object({
+            location: z
+              .string()
+              .describe("The location to get the weather for"),
+          }),
+          execute: async ({ location }) => ({
+            location,
+            temperature: 72 + Math.floor(Math.random() * 21) - 10,
+          }),
+        }),
+      },
     });
 
     // Create a TransformStream to collect the assistant's message while streaming
