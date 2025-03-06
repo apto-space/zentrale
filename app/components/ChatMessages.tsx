@@ -3,8 +3,9 @@ import MarkdownContent from "./MarkdownContent";
 import CitationRenderer from "./CitationRenderer";
 import { Message } from "@ai-sdk/react";
 import {
-  WeatherToolResult,
-  WeatherToolResult as WeatherToolResultType,
+  WeatherToolView,
+  WeatherToolInvocation,
+  WEATHER_TOOL_NAME,
 } from "../core/api/chat/WeatherTool";
 
 // interface Message {
@@ -17,19 +18,10 @@ interface ChatMessagesProps {
   isLoading?: boolean;
 }
 
-type ToolInvocation = {
-  state: "result";
-  step: number;
-  toolCallId: string;
-  toolName: string;
-  args: Record<string, any>;
-  result: WeatherToolResultType;
-};
-
 type MessagePart = {
   type: "text" | "tool-invocation";
   text?: string;
-  toolInvocation?: ToolInvocation;
+  toolInvocation?: WeatherToolInvocation;
 };
 
 export default function ChatMessages({
@@ -71,8 +63,8 @@ export default function ChatMessages({
                     {part.type === "text" ? (
                       <MarkdownContent content={part.text || ""} />
                     ) : part.type === "tool-invocation" &&
-                      part.toolInvocation?.toolName === "weather" ? (
-                      <WeatherToolResult result={part.toolInvocation.result} />
+                      part.toolInvocation?.toolName === WEATHER_TOOL_NAME ? (
+                      <WeatherToolView result={part.toolInvocation.result} />
                     ) : (
                       <pre className="bg-[var(--background)] p-2 rounded overflow-x-auto text-sm">
                         {JSON.stringify(part, null, 2)}

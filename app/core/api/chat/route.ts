@@ -1,8 +1,5 @@
-import { anthropic } from "@ai-sdk/anthropic";
-import { streamText, tool } from "ai";
-import { z } from "zod";
 import { processStreamAndSaveResponse, upsertConversation } from "./dbHelpers";
-import { weatherToolSchema } from "./WeatherTool";
+import { createStream } from "./aiConfig";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -31,21 +28,7 @@ export async function POST(req: Request) {
       nextMessage,
     });
 
-    const result = streamText({
-      model: anthropic("claude-3-5-haiku-latest"),
-      system: "You are a helpful assistant.",
-      messages,
-      tools: {
-        weather: tool({
-          description: "Get the weather in a location",
-          parameters: weatherToolSchema,
-          execute: async ({ location }) => ({
-            location,
-            temperature: 72 + Math.floor(Math.random() * 21) - 10,
-          }),
-        }),
-      },
-    });
+    const result = createStream(messages);
 
     // Create a TransformStream to collect the assistant's message while streaming
     const { readable, writable } = new TransformStream();
