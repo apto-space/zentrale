@@ -8,13 +8,12 @@ export const useConversationChatV2 = (
   onStreamComplete?: () => void
 ) => {
   const { id: sessionId } = useAnonSession();
-  const streamRef = useRef<Response>(null);
 
   const chat = useChat({
     api: `core/api/chat?sessionId=${sessionId}&conversationId=${conversationId}`,
     id: conversationId,
     onResponse: (response) => {
-      streamRef.current = response;
+      onStreamComplete?.();
     },
     onFinish: () => {
       onStreamComplete?.();

@@ -7,17 +7,23 @@ import { Menu, X } from "lucide-react";
 type Conversation = {
   conversation_id: string;
   created_at: string;
+  updated_at: string;
   conversation_message_count: number;
 };
 
-export const ConversationSidebar = () => {
+interface ConversationSidebarProps {
+  refreshKey?: number;
+}
+
+export const ConversationSidebar = ({
+  refreshKey,
+}: ConversationSidebarProps) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  console.log("isloading", isLoading);
 
   const fetchConversations = async () => {
     try {
@@ -26,7 +32,12 @@ export const ConversationSidebar = () => {
         throw new Error("Failed to fetch conversations");
       }
       const data = await response.json();
-      setConversations(data);
+      // Sort conversations by updated_at in descending order
+      const sortedConversations = data.sort(
+        (a: Conversation, b: Conversation) =>
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      );
+      setConversations(sortedConversations);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to fetch conversations"
@@ -36,21 +47,10 @@ export const ConversationSidebar = () => {
     }
   };
 
-  // Fetch conversations initially and when URL changes
+  // Fetch conversations initially and when refreshKey changes
   useEffect(() => {
     fetchConversations();
-  }, []);
-
-  // Watch for new conversations being created
-  useEffect(() => {
-    const conversationId = searchParams.get("conversationId");
-    const isFresh = searchParams.get("fresh");
-
-    // If we have a conversation ID and it's fresh, refresh the list
-    if (conversationId && isFresh === "true") {
-      fetchConversations();
-    }
-  }, [searchParams]);
+  }, [refreshKey]);
 
   const handleDelete = async (id: string) => {
     try {

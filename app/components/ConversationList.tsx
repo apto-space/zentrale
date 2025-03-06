@@ -6,6 +6,7 @@ import { Trash2, Plus } from "lucide-react";
 type Conversation = {
   conversation_id: string;
   created_at: string;
+  updated_at: string;
   conversation_message_count: number;
 };
 
@@ -59,7 +60,7 @@ export const ConversationList = ({
               } border`}
             >
               <div className="text-sm text-[var(--text-secondary)]">
-                {formatDistanceToNow(new Date(conv.created_at), {
+                {formatDistanceToNow(new Date(conv.updated_at), {
                   addSuffix: true,
                 })}
               </div>

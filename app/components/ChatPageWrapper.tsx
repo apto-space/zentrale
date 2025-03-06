@@ -36,7 +36,7 @@ export const ChatPageWrapper = () => {
 
   return (
     <div className="h-screen flex">
-      <ConversationSidebar key={refreshKey} />
+      <ConversationSidebar refreshKey={refreshKey} />
       <ChatPage
         key={conversationId}
         conversationId={conversationId}
