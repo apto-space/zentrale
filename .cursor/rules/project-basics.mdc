@@ -6,11 +6,14 @@ alwaysApply: false
 
 # Project context
 - We are using bun instead of npm
-- The db schema is at [default.esdl](mdc:dbschema/default.esdl). Read it carefully and respect it.
-- the database is called 'gel' (formerly edgedb). Prefer 'gel' commands, but in case they aren't found, you can use edgdeb
-- gel database types include only
 - prefer a functional or imperative style over object-oriented
 - Explain changes only briefly after completing
 - always await nextJS page params
 - use bun:test for unit tests
 - do not install new packages unless prompted to do so
+
+# DATABASE
+- The db schema is at @default.esdl. Read it carefully and respect it.
+- the database is called 'gel' (formerly edgedb). Prefer 'gel' commands, but in case they aren't found, you can use edgdeb
+- gel database types include only
+- NEVER write migrations by hand

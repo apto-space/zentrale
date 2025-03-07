@@ -1,6 +1,6 @@
 import { createClient } from "edgedb";
 
-export const client = createClient({ instanceName: "zentrale-ai/core" });
+export const client = createClient();
 
 export interface Document {
   content: string;

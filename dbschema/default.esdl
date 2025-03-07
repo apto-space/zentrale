@@ -1,5 +1,15 @@
+using extension pgvector;
+
 module default {
     # using qualified names to prevent confusion / create 'typing'
+
+    scalar type voyage_embedding extending ext::pgvector::vector<1024>;
+
+    type Document extending Timestamped {
+        required content: str;
+        required embedding: voyage_embedding;
+        required metadata: json;
+    }
 
     type Conversation extending Timestamped {
         required conversation_anon_user_id: str;
