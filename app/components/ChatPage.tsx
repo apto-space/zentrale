@@ -58,6 +58,11 @@ export const ChatPage = ({
 
   return (
     <div className="flex-1 flex flex-col">
+      {messages.length > 0 && (
+        <div className="p-4 border-[var(--card-border)]">
+          <h1 className="text-lg font-medium">You are talking to Jon Bot</h1>
+        </div>
+      )}
       {messages.length === 0 ? (
         <EmptyState
           onQuestionClick={handleQuestionClick}

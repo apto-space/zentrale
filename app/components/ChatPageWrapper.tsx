@@ -36,13 +36,15 @@ export const ChatPageWrapper = () => {
   };
 
   return (
-    <div className="h-screen flex">
+    <div className="h-screen flex flex-col items-center">
       <ConversationSidebar refreshKey={refreshKey} />
-      <ChatPage
-        key={conversationId}
-        conversationId={conversationId}
-        onConversationUpdate={handleConversationUpdate}
-      />
+      <div className="flex-1 flex justify-center h-screen max-w-4xl w-full">
+        <ChatPage
+          key={conversationId}
+          conversationId={conversationId}
+          onConversationUpdate={handleConversationUpdate}
+        />
+      </div>
     </div>
   );
 };

@@ -118,10 +118,10 @@ export const ConversationSidebar = ({
 
   return (
     <>
-      {/* Mobile toggle button */}
+      {/* Toggle button - now always visible */}
       <button
         onClick={toggleSidebar}
-        className="fixed top-4 left-4 p-2 rounded-lg bg-[var(--card-background)] shadow-md md:hidden z-50 border border-[var(--card-border)]"
+        className="fixed top-4 left-4 p-2 rounded-lg bg-[var(--card-background)] shadow-md z-50 border border-[var(--card-border)]"
       >
         {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
@@ -130,15 +130,15 @@ export const ConversationSidebar = ({
       <div
         className={`fixed inset-y-0 left-0 transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-40 bg-[var(--card-background)] w-64 border-r border-[var(--card-border)] h-full overflow-y-auto`}
+        } transition-transform duration-300 ease-in-out z-40 bg-[var(--card-background)] w-64 border-r border-[var(--card-border)] h-full overflow-y-auto`}
       >
         <div className="p-4">{sidebarContent()}</div>
       </div>
 
-      {/* Mobile overlay */}
+      {/* Overlay - now always visible when sidebar is open */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 md:hidden z-30"
+          className="fixed inset-0 bg-black/50 z-30"
           onClick={() => setIsOpen(false)}
         />
       )}
