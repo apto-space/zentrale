@@ -84,15 +84,31 @@ export namespace $default {
     "conversation_id": string;
     "conversation_messages": Message[];
   }
+  export interface Document extends Timestamped {
+    "content": string;
+    "embedding": Float32Array;
+    "metadata": unknown;
+  }
   export interface Message extends Timestamped {
     "message_role": string;
     "message_content": string;
+    "message_parts": unknown[];
+    "message_tool_invocations": unknown[];
     "message_conversation": Conversation;
   }
 }
 export type Timestamped = $default.Timestamped;
 export type Conversation = $default.Conversation;
+export type Document = $default.Document;
 export type Message = $default.Message;
+export namespace ext {
+  export namespace pgvector {
+    export interface Config extends cfg.ExtensionConfig {
+      "probes": number;
+      "ef_search": number;
+    }
+  }
+}
 export namespace fts {
   export type ElasticLanguage = "ara" | "bul" | "cat" | "ces" | "ckb" | "dan" | "deu" | "ell" | "eng" | "eus" | "fas" | "fin" | "fra" | "gle" | "glg" | "hin" | "hun" | "hye" | "ind" | "ita" | "lav" | "nld" | "nor" | "por" | "ron" | "rus" | "spa" | "swe" | "tha" | "tur" | "zho" | "edb_Brazilian" | "edb_ChineseJapaneseKorean";
   export type Language = "ara" | "hye" | "eus" | "cat" | "dan" | "nld" | "eng" | "fin" | "fra" | "deu" | "ell" | "hin" | "hun" | "ind" | "gle" | "ita" | "nor" | "por" | "ron" | "rus" | "spa" | "swe" | "tur";
@@ -356,7 +372,13 @@ export interface types {
   "default": {
     "Timestamped": $default.Timestamped;
     "Conversation": $default.Conversation;
+    "Document": $default.Document;
     "Message": $default.Message;
+  };
+  "ext": {
+    "pgvector": {
+      "Config": ext.pgvector.Config;
+    };
   };
   "fts": {
     "ElasticLanguage": fts.ElasticLanguage;

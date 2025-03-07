@@ -26,6 +26,14 @@ module default {
         required message_parts: array<json>;
         required message_tool_invocations: array<json>;
         constraint exclusive on ((.message_conversation, .created_at));
+        message_feedback:= .<message[is MessageFeedback];
+    }
+
+    type MessageFeedback extending Timestamped {
+        required message: Message {on target delete delete source};
+        required is_positive: bool;
+        optional feedback_text: str;
+        constraint exclusive on (.message);
     }
 
     abstract type Timestamped {

@@ -1,6 +1,6 @@
-import { weatherTool } from "../api/chat/WeatherTool";
-import { searchTool } from "./rag";
-import { tomatoFactSearchTool } from "./search";
+import { weatherTool } from "./weather";
+import { searchTool } from "./search";
+import { tomatoFactSearchTool } from "./tomatoFacts";
 
 export const toolConfig = {
   ...searchTool,

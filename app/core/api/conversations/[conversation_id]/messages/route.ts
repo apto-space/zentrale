@@ -6,6 +6,10 @@ type DBMessage = {
   id: string;
   parts: any[];
   tool_invocations: any[];
+  feedback?: {
+    is_positive: boolean;
+    feedback_text?: string;
+  };
 };
 
 export async function GET(
@@ -23,6 +27,10 @@ export async function GET(
         id,
         parts := .message_parts,
         tool_invocations := .message_tool_invocations,
+        feedback := .message_feedback {
+          is_positive,
+          feedback_text,
+        }
       } filter .message_conversation.conversation_id = <uuid>$conversation_id
       order by .created_at asc
       `,
