@@ -3,10 +3,9 @@ import { join } from "path";
 import { insertDocument } from "./db/documents";
 import { generateEmbedding } from "./lib/voyage";
 
-async function main() {
+export default async function populateDb(filePath: string) {
   try {
-    // Read the output.md file
-    const filePath = join(process.cwd(), "output.md");
+    // Read the markdown file
     const content = readFileSync(filePath, "utf-8");
 
     // Split content by markdown headers (lines starting with #)
@@ -21,7 +20,7 @@ async function main() {
         content: chunk,
         embedding: await generateEmbedding(chunk),
         metadata: {
-          source: "output.md",
+          source: filePath,
           timestamp: new Date().toISOString(),
           header: chunk.split("\n")[0], // Store the header as metadata
         },
@@ -36,8 +35,15 @@ async function main() {
     console.log("Database population completed successfully!");
   } catch (error) {
     console.error("Error populating database:", error);
-    process.exit(1);
+    throw error;
   }
 }
 
-main();
+// Only run if called directly
+if (require.main === module) {
+  const filePath = join(process.cwd(), "output.md");
+  populateDb(filePath).catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
