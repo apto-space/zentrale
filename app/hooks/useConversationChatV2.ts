@@ -51,7 +51,7 @@ export const useConversationChatV2 = (
     ...chat,
     messages: chat.messages.map((message) => ({
       ...message,
-      feedback: messages.find((f) => f.id === message.id)?.feedback,
+      feedback: messages.find((f) => f.id === message.id)?.feedback!,
     })),
   };
 };
