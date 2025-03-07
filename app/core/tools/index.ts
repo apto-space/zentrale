@@ -1,9 +1,7 @@
-import { weatherTool } from "./weather";
-import { searchTool } from "./search";
+import { searchTool } from "./rag";
 
-export const tools = {
-  weather: weatherTool,
-  search: searchTool,
-} as const;
-
-export type ToolName = keyof typeof tools;
+export const toolConfig = { ...searchTool };
+// for AI
+export const tools = Object.fromEntries(
+  Object.entries(toolConfig).map(([key, value]) => [key, value.aiTool])
+);

@@ -2,8 +2,9 @@ import { createClient } from "edgedb";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { conversation_id: string } }
-) {
+  context: { params: Promise<{ conversation_id: string }> }
+): Promise<Response> {
+  const { conversation_id } = await context.params;
   const client = createClient();
 
   try {
@@ -16,7 +17,7 @@ export async function DELETE(
       delete target
       `,
       {
-        conversation_id: params.conversation_id,
+        conversation_id,
       }
     );
 

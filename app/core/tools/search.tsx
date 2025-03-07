@@ -2,32 +2,34 @@ import React from "react";
 import { z } from "zod";
 import { tool } from "ai";
 
-export const SEARCH_TOOL_NAME = "search" as const;
+export const TOMATO_FACT_SEARCH_TOOL_NAME = "tomatoFactSearch" as const;
 
-export const searchToolSchema = z.object({
+export const tomatoFactSearchToolSchema = z.object({
   query: z.string().describe("The search query"),
   facts: z.array(z.string()),
 });
 
-export type SearchToolParams = z.infer<typeof searchToolSchema>;
+export type TomatoFactSearchToolParams = z.infer<
+  typeof tomatoFactSearchToolSchema
+>;
 
-export type SearchToolResult = {
+export type TomatoFactSearchToolResult = {
   query: string;
   facts: string[];
 };
 
-export type SearchToolInvocation = {
+export type TomatoFactSearchToolInvocation = {
   state: "result";
   step: number;
   toolCallId: string;
-  toolName: typeof SEARCH_TOOL_NAME;
-  args: SearchToolParams;
-  result: SearchToolResult;
+  toolName: typeof TOMATO_FACT_SEARCH_TOOL_NAME;
+  args: TomatoFactSearchToolParams;
+  result: TomatoFactSearchToolResult;
 };
 
-export const searchTool = tool({
-  description: "Search for information about a topic",
-  parameters: searchToolSchema,
+export const tomatoFactSearchTool = tool({
+  description: "Search for information about tomatoes",
+  parameters: tomatoFactSearchToolSchema,
   execute: async ({ query }) => ({
     query,
     facts: [
@@ -40,7 +42,11 @@ export const searchTool = tool({
   }),
 });
 
-export function SearchToolView({ result }: { result: SearchToolResult }) {
+export function TomatoFactSearchToolView({
+  result,
+}: {
+  result: TomatoFactSearchToolResult;
+}) {
   return (
     <div className="bg-[var(--background)] p-3 rounded-lg border border-[var(--card-border)]">
       <div className="flex items-center gap-2 mb-2">
@@ -57,3 +63,11 @@ export function SearchToolView({ result }: { result: SearchToolResult }) {
     </div>
   );
 }
+
+export const tomatoFactSearchToolConfig = {
+  tomatoFactSearch: {
+    aiTool: tomatoFactSearchTool,
+    view: TomatoFactSearchToolView,
+    schema: tomatoFactSearchToolSchema,
+  },
+};
