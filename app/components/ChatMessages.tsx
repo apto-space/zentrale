@@ -39,26 +39,20 @@ export default function ChatMessages({
     scrollToBottom();
   }, [messages]);
   console.log(messages);
+  // make it so that the messages appear at the bottom
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[var(--background)]">
-      {messages.length > 0 && onRequestHuman && (
-        <div className="flex justify-center mb-4">
-          <button
-            onClick={onRequestHuman}
-            className="flex items-center gap-2 px-4 py-2 rounded-md border border-[var(--card-border)] hover:bg-[var(--card-background)] transition-colors"
-          >
-            <span>👥</span>
-            Talk to a Human
-          </button>
-        </div>
-      )}
+    // <div className="flex flex-1 flex-col h-full bg-purple-100">
+    <div className=" overflow-y-auto p-4 space-y-4 flex-1 flex flex-col">
+      {messages.length > 0 && onRequestHuman && <Dropout></Dropout>}
       {messages.map((message, index) => (
         <div
           key={index}
           className={`flex ${
             message.role === "user" ? "justify-end" : "justify-start"
-          }`}
+          }
+          ${index == 0 ? "mt-auto" : ""}
+          `}
         >
           <ViewMessage
             message={message}
@@ -68,18 +62,35 @@ export default function ChatMessages({
           />
         </div>
       ))}
-      {isLoading && (
-        <div className="flex justify-start">
-          <div className="bg-[var(--card-background)] rounded-lg p-4 shadow-sm border border-[var(--card-border)]">
-            <div className="flex space-x-2">
-              <div className="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce" />
-              <div className="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce delay-100" />
-              <div className="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce delay-200" />
-            </div>
-          </div>
-        </div>
-      )}
+      {isLoading && <Loader />}
       <div ref={messagesEndRef} />
     </div>
+    // </div>
   );
 }
+const Dropout = () => {
+  return (
+    <div className="flex justify-center mb-4">
+      <button
+        onClick={() => alert("Talk to human")}
+        className="flex items-center gap-2 px-4 py-2 rounded-md border border-[var(--card-border)] hover:bg-[var(--card-background)] transition-colors"
+      >
+        <span>👥</span>
+        Talk to a Human
+      </button>
+    </div>
+  );
+};
+const Loader = () => {
+  return (
+    <div className="flex justify-start">
+      <div className="bg-[var(--card-background)] rounded-lg p-4 shadow-sm border border-[var(--card-border)]">
+        <div className="flex space-x-2">
+          <div className="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce" />
+          <div className="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce delay-100" />
+          <div className="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce delay-200" />
+        </div>
+      </div>
+    </div>
+  );
+};
