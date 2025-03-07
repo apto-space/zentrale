@@ -1,7 +1,8 @@
 // hook to be used in the chat page
 import { useChat } from "@ai-sdk/react";
 import { useAnonSession } from "./useAnonSession";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ChatMessage } from "../components/ChatMessages";
 
 export const useConversationChatV2 = (
   conversationId: string,
@@ -19,6 +20,7 @@ export const useConversationChatV2 = (
       onStreamComplete?.();
     },
   });
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   // Load conversation history when component mounts
   useEffect(() => {
@@ -36,6 +38,7 @@ export const useConversationChatV2 = (
         }
         const messages = await response.json();
         chat.setMessages(messages);
+        setMessages(messages);
       } catch (error) {
         console.error("Error loading conversation:", error);
       }
@@ -44,5 +47,11 @@ export const useConversationChatV2 = (
     loadConversation();
   }, [conversationId]);
 
-  return chat;
+  return {
+    ...chat,
+    messages: chat.messages.map((message) => ({
+      ...message,
+      feedback: messages.find((f) => f.id === message.id)?.feedback,
+    })),
+  };
 };

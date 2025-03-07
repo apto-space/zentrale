@@ -1,5 +1,5 @@
 "use client";
-import ChatMessages, { Message } from "./ChatMessages";
+import ChatMessages, { ChatMessage } from "./ChatMessages";
 import { EmptyState } from "./EmptyState";
 import { ChatInput } from "./ChatInput";
 import { ConversationSidebar } from "./ConversationSidebar";
@@ -23,22 +23,8 @@ export const ChatPage = ({
 }: ChatPageProps) => {
   const { messages, input, handleInputChange, handleSubmit, status, append } =
     useConversationChatV2(conversationId, onConversationUpdate);
-  const [feedbackState, setFeedbackState] = useState<Record<string, boolean>>(
-    {}
-  );
   const lastMessage = messages[messages.length - 1];
   console.log("lastMessage", lastMessage);
-
-  // Initialize feedback state from messages
-  useEffect(() => {
-    const initialFeedback: Record<string, boolean> = {};
-    (messages as Message[]).forEach((message) => {
-      if (message.feedback?.is_positive !== undefined) {
-        initialFeedback[message.id] = message.feedback.is_positive;
-      }
-    });
-    setFeedbackState(initialFeedback);
-  }, [messages]);
 
   const handleQuestionClick = (question: string) => {
     // Set the input value to the clicked question
@@ -48,9 +34,8 @@ export const ChatPage = ({
     });
   };
 
-  const handleFeedback = async (messageId: string, isPositive: boolean) => {
+  const handleFeedback = async (messageOffset: number, isPositive: boolean) => {
     // Optimistically update UI
-    setFeedbackState((prev) => ({ ...prev, [messageId]: isPositive }));
 
     try {
       const response = await fetch("/core/api/feedback", {
@@ -58,16 +43,11 @@ export const ChatPage = ({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ messageId, isPositive }),
+        body: JSON.stringify({ messageOffset, isPositive, conversationId }),
       });
 
       if (!response.ok) {
         // Revert on error
-        setFeedbackState((prev) => {
-          const newState = { ...prev };
-          delete newState[messageId];
-          return newState;
-        });
         throw new Error("Failed to save feedback");
       }
     } catch (error) {
@@ -88,11 +68,10 @@ export const ChatPage = ({
       ) : (
         <>
           <ChatMessages
-            messages={messages as Message[]}
+            messages={messages}
             isLoading={status == "streaming"}
             onFeedback={handleFeedback}
             onRequestHuman={onRequestHuman}
-            feedbackState={feedbackState}
           />
           <ChatInput
             input={input}

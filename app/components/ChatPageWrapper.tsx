@@ -9,13 +9,14 @@ import { ConversationSidebar } from "./ConversationSidebar";
 export const ChatPageWrapper = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [conversationId, setConversationId] = useState<string>(() => v4());
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const urlConversationId = searchParams.get("conversationId");
 
     if (!urlConversationId) {
+      // we don't set it in useState because we want to avoid re-rendering and overfetching
       const newId = v4();
       setConversationId(newId);
       const newParams = new URLSearchParams(searchParams);

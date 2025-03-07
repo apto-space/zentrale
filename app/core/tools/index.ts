@@ -8,6 +8,7 @@ export const toolConfig = {
   ...weatherTool,
 };
 // for AI
-export const tools = Object.fromEntries(
-  Object.entries(toolConfig).map(([key, value]) => [key, value.aiTool])
-);
+// export const tools = Object.fromEntries(
+//   Object.entries(toolConfig).map(([key, value]) => [key, value.aiTool])
+// );
+export const tools = {};

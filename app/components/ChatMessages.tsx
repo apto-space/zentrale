@@ -1,13 +1,12 @@
-import { useRef, useEffect, useState } from "react";
-import MarkdownContent from "./MarkdownContent";
+import { useRef, useEffect } from "react";
 import { Message } from "@ai-sdk/react";
-import { ToolRenderer } from "../core/tools/ToolRenderer";
+import { ViewMessage } from "./ChatMessage";
 
-type ChatMessage = Message & {
-  feedback?: Feedback;
+export type ChatMessage = Message & {
+  feedback: Feedback | null;
 };
 
-type Feedback = {
+export type Feedback = {
   is_positive: boolean;
   feedback_text?: string;
 };
@@ -15,97 +14,14 @@ interface ChatMessagesProps {
   messages: ChatMessage[];
   isLoading?: boolean;
   onRequestHuman?: () => void;
-  onFeedback?: (messageId: string, isPositive: boolean) => void;
+  onFeedback?: (messageOffset: number, isPositive: boolean) => void;
 }
 
-type MessagePart = {
+export type MessagePart = {
   type: "text" | "tool-invocation";
   text?: string;
   toolInvocation?: any;
 };
-
-function ViewMessage({
-  message,
-  onFeedback,
-}: {
-  message: ChatMessage;
-  onFeedback?: (messageId: string, isPositive: boolean) => void;
-}) {
-  const [feedback, setFeedback] = useState<Feedback | null>(
-    message.feedback ?? null
-  );
-  return (
-    <div
-      className={`max-w-[80%] rounded-lg p-4 ${
-        message.role === "user"
-          ? "bg-[var(--accent-primary)] text-white"
-          : "bg-[var(--card-background)] text-[var(--text-primary)] shadow-sm border border-[var(--card-border)]"
-      }`}
-    >
-      {message.role === "user" ? (
-        <MarkdownContent content={message.content} />
-      ) : (
-        <div className="space-y-2">
-          {(message.parts as MessagePart[])?.map((part, partIndex) => (
-            <div key={partIndex}>
-              {part.type === "text" ? (
-                <MarkdownContent content={part.text || ""} />
-              ) : part.type === "tool-invocation" ? (
-                <ToolRenderer toolInvocation={part.toolInvocation} />
-              ) : (
-                <pre className="bg-[var(--background)] p-2 rounded overflow-x-auto text-sm">
-                  {JSON.stringify(part, null, 2)}
-                </pre>
-              )}
-            </div>
-          ))}
-          {onFeedback && (
-            <div className="flex items-center gap-1 mt-1.5 text-sm">
-              <span className="text-[var(--text-secondary)]">
-                Was this helpful?
-              </span>
-              <button
-                onClick={() => {
-                  setFeedback({
-                    is_positive: true,
-                    feedback_text: message.feedback?.feedback_text,
-                  });
-                  onFeedback(message.id, true);
-                }}
-                className={`p-1 hover:bg-[var(--background)] rounded transition-colors ${
-                  feedback?.is_positive === true
-                    ? "text-green-500"
-                    : "text-[var(--text-secondary)] hover:text-green-500"
-                }`}
-                title="Yes"
-              >
-                👍
-              </button>
-              <button
-                onClick={() => {
-                  setFeedback({
-                    is_positive: false,
-                    feedback_text: message.feedback?.feedback_text,
-                  });
-                  onFeedback(message.id, false);
-                }}
-                className={`p-1 hover:bg-[var(--background)] rounded transition-colors ${
-                  feedback?.is_positive === false
-                    ? "text-red-500"
-                    : "text-[var(--text-secondary)] hover:text-red-500"
-                }`}
-                title="No"
-              >
-                👎
-              </button>
-            </div>
-          )}
-          {JSON.stringify(feedback)}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function ChatMessages({
   messages,
@@ -122,6 +38,7 @@ export default function ChatMessages({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+  console.log(messages);
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[var(--background)]">
@@ -143,7 +60,12 @@ export default function ChatMessages({
             message.role === "user" ? "justify-end" : "justify-start"
           }`}
         >
-          <ViewMessage message={message} onFeedback={onFeedback} />
+          <ViewMessage
+            message={message}
+            onFeedback={(isPositive) =>
+              onFeedback?.(Math.abs(-index + messages.length) - 1, isPositive)
+            }
+          />
         </div>
       ))}
       {isLoading && (

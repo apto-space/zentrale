@@ -26,7 +26,7 @@ module default {
         required message_parts: array<json>;
         required message_tool_invocations: array<json>;
         constraint exclusive on ((.message_conversation, .created_at));
-        message_feedback:= .<message[is MessageFeedback];
+        message_feedback:= assert_single(.<message[is MessageFeedback]);
     }
 
     type MessageFeedback extending Timestamped {

@@ -39,18 +39,7 @@ export async function GET(
       }
     );
 
-    return Response.json(
-      messages.map((m) => ({
-        ...m,
-        content: (() => {
-          try {
-            return JSON.parse(m.content);
-          } catch {
-            return m.content;
-          }
-        })(),
-      }))
-    );
+    return Response.json(messages);
   } catch (error) {
     console.error("Error fetching conversation messages:", error);
     return new Response("Failed to fetch conversation messages", {
