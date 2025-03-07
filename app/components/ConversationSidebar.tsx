@@ -72,9 +72,6 @@ export const ConversationSidebar = ({
 
       // Refresh the conversations list
       fetchConversations();
-
-      // Close sidebar on mobile after deletion
-      setIsOpen(false);
     } catch (error) {
       console.error("Error deleting conversation:", error);
     }
