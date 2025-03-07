@@ -115,21 +115,24 @@ export const ConversationSidebar = ({
 
   return (
     <>
-      {/* Toggle button - now always visible */}
-      <button
-        onClick={toggleSidebar}
-        className="fixed top-4 left-4 p-2 rounded-lg bg-[var(--card-background)] shadow-md z-50 border border-[var(--card-border)]"
-      >
-        {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-      </button>
+      {/* Toggle button - only visible when sidebar is closed */}
+      {!isOpen && (
+        <button onClick={toggleSidebar} className="fixed top-4 left-4 p-2 z-50">
+          <Menu className="w-6 h-6" />
+        </button>
+      )}
 
       {/* Sidebar */}
       <div
         className={`fixed inset-y-0 left-0 transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out z-40 bg-[var(--card-background)] w-64 border-r border-[var(--card-border)] h-full overflow-y-auto`}
+        } transition-transform duration-300 ease-in-out z-40 w-lg h-full max-w-full`}
       >
-        <div className="p-4">{sidebarContent()}</div>
+        <div className="h-full p-6">
+          <div className="bg-stone-100 rounded-3xl p-6 overflow-y-auto max-h-min">
+            {sidebarContent()}
+          </div>
+        </div>
       </div>
 
       {/* Overlay - now always visible when sidebar is open */}
