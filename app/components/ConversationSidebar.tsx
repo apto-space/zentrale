@@ -50,7 +50,7 @@ export const ConversationSidebar = ({
   // Fetch conversations initially and when refreshKey changes
   useEffect(() => {
     fetchConversations();
-  }, [refreshKey]);
+  }, [refreshKey, searchParams]);
 
   const handleDelete = async (id: string) => {
     try {
