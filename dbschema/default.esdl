@@ -17,6 +17,7 @@ module default {
         required conversation_messages:= assert_exists(.<message_conversation[is Message]);
         required conversation_message_count:= count(.conversation_messages);
         required conversation_id: uuid {constraint exclusive};
+        optional conversation_title: str;
     }
 
     type Message extending Timestamped {

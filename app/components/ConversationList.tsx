@@ -2,12 +2,14 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { Trash2, Plus } from "lucide-react";
+import { ConversationTitle } from "./ConversationTitle";
 
 type Conversation = {
   conversation_id: string;
   created_at: string;
   updated_at: string;
   conversation_message_count: number;
+  conversation_title?: string;
 };
 
 type ConversationListProps = {
@@ -59,13 +61,14 @@ export const ConversationList = ({
                   : "hover:bg-[var(--hover-background)] border-[var(--card-border)]"
               } border`}
             >
+              <ConversationTitle
+                conversationId={conv.conversation_id}
+                initialTitle={conv.conversation_title}
+              />
               <div className="text-sm text-[var(--text-secondary)]">
                 {formatDistanceToNow(new Date(conv.updated_at), {
                   addSuffix: true,
                 })}
-              </div>
-              <div className="text-sm font-medium text-[var(--text-primary)]">
-                {conv.conversation_message_count} messages
               </div>
             </button>
             <button
