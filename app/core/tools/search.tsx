@@ -1,35 +1,23 @@
 import React from "react";
 import { z } from "zod";
 import { tool } from "ai";
+import { ToolConfig } from "./ToolConfig";
 
-export const TOMATO_FACT_SEARCH_TOOL_NAME = "tomatoFactSearch" as const;
-
-export const tomatoFactSearchToolSchema = z.object({
+const tomatoFactSearchSchema = z.object({
   query: z.string().describe("The search query"),
   facts: z.array(z.string()),
 });
 
-export type TomatoFactSearchToolParams = z.infer<
-  typeof tomatoFactSearchToolSchema
->;
+const ParamsSchema = z.object({
+  query: z.string().describe("The search query"),
+});
 
-export type TomatoFactSearchToolResult = {
-  query: string;
-  facts: string[];
-};
+type Params = z.infer<typeof ParamsSchema>;
+type TomatoFactSearchResult = z.infer<typeof tomatoFactSearchSchema>;
 
-export type TomatoFactSearchToolInvocation = {
-  state: "result";
-  step: number;
-  toolCallId: string;
-  toolName: typeof TOMATO_FACT_SEARCH_TOOL_NAME;
-  args: TomatoFactSearchToolParams;
-  result: TomatoFactSearchToolResult;
-};
-
-export const tomatoFactSearchTool = tool({
+const tomatoFactSearchTool = tool({
   description: "Search for information about tomatoes",
-  parameters: tomatoFactSearchToolSchema,
+  parameters: ParamsSchema,
   execute: async ({ query }) => ({
     query,
     facts: [
@@ -42,11 +30,7 @@ export const tomatoFactSearchTool = tool({
   }),
 });
 
-export function TomatoFactSearchToolView({
-  result,
-}: {
-  result: TomatoFactSearchToolResult;
-}) {
+function TomatoFactSearchView({ result }: { result: TomatoFactSearchResult }) {
   return (
     <div className="bg-[var(--background)] p-3 rounded-lg border border-[var(--card-border)]">
       <div className="flex items-center gap-2 mb-2">
@@ -64,10 +48,10 @@ export function TomatoFactSearchToolView({
   );
 }
 
-export const tomatoFactSearchToolConfig = {
-  tomatoFactSearch: {
-    aiTool: tomatoFactSearchTool,
-    view: TomatoFactSearchToolView,
-    schema: tomatoFactSearchToolSchema,
-  },
+const tomatoFactSearch: ToolConfig<Params, TomatoFactSearchResult> = {
+  aiTool: tomatoFactSearchTool,
+  view: TomatoFactSearchView,
+  outputSchema: tomatoFactSearchSchema,
 };
+
+export const tomatoFactSearchTool = { tomatoFactSearch };

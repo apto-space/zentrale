@@ -5,8 +5,6 @@ import { retrieveSimilarDocuments } from "../../services/retrieval";
 import { rerankDocuments } from "../../services/reranking";
 import { ToolConfig } from "./ToolConfig";
 
-const RAG_TOOL_NAME = "search" as const;
-
 const ragToolSchema = z.object({
   documents: z.array(
     z.object({
@@ -32,7 +30,7 @@ const ParamsSchema = z.object({
 type Params = z.infer<typeof ParamsSchema>;
 type RAGToolResult = z.infer<typeof ragToolSchema>;
 
-const ragTool = tool({
+const aiTool = tool({
   description: "Search and retrieve relevant documentation",
   parameters: ParamsSchema,
   execute: async ({ query, limit = 10, relevanceThreshold = 0.2 }) => {
@@ -81,7 +79,7 @@ function RAGToolView({ result }: { result: RAGToolResult }) {
 const search: ToolConfig<Params, RAGToolResult> = {
   // namespace, also used by the LLM to identify the tool
   // only one search tool is supported at a time
-  aiTool: ragTool,
+  aiTool: aiTool,
   view: RAGToolView,
   outputSchema: ragToolSchema,
 };

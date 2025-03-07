@@ -1,40 +1,30 @@
 import React from "react";
 import { z } from "zod";
 import { tool } from "ai";
+import { ToolConfig } from "./ToolConfig";
 
-export const WEATHER_TOOL_NAME = "weather" as const;
-
-export const weatherToolSchema = z.object({
+const weatherSchema = z.object({
   location: z.string().describe("The location to get the weather for"),
   temperature: z.number(),
 });
 
-export type WeatherToolParams = z.infer<typeof weatherToolSchema>;
+const ParamsSchema = z.object({
+  location: z.string().describe("The location to get the weather for"),
+});
 
-export type WeatherToolResult = {
-  location: string;
-  temperature: number;
-};
+type Params = z.infer<typeof ParamsSchema>;
+type WeatherResult = z.infer<typeof weatherSchema>;
 
-export type WeatherToolInvocation = {
-  state: "result";
-  step: number;
-  toolCallId: string;
-  toolName: typeof WEATHER_TOOL_NAME;
-  args: WeatherToolParams;
-  result: WeatherToolResult;
-};
-
-export const weatherTool = tool({
+const aiTool = tool({
   description: "Get the weather in a location",
-  parameters: weatherToolSchema,
+  parameters: ParamsSchema,
   execute: async ({ location }) => ({
     location,
     temperature: 72 + Math.floor(Math.random() * 21) - 10,
   }),
 });
 
-export function WeatherToolView({ result }: { result: WeatherToolResult }) {
+function WeatherView({ result }: { result: WeatherResult }) {
   return (
     <div className="bg-[var(--background)] p-3 rounded-lg border border-[var(--card-border)]">
       <div className="flex items-center gap-2">
@@ -49,3 +39,11 @@ export function WeatherToolView({ result }: { result: WeatherToolResult }) {
     </div>
   );
 }
+
+const weather: ToolConfig<Params, WeatherResult> = {
+  aiTool,
+  view: WeatherView,
+  outputSchema: weatherSchema,
+};
+
+export const weatherTool = { weather };
