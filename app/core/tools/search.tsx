@@ -73,5 +73,6 @@ const search: ToolConfig<Params, SearchToolResult> = {
   aiTool: aiTool,
   view: SearchToolView,
   outputSchema: searchToolSchema,
+  inputSchema: ParamsSchema,
 };
 export const searchTool = { search };

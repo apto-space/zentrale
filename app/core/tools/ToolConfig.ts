@@ -5,4 +5,5 @@ export type ToolConfig<Params = any, Results = any> = {
   aiTool: Tool<ZodSchema<Params>, Results>;
   view: React.ComponentType<{ result: Results }>;
   outputSchema: z.ZodSchema<Results>;
+  inputSchema: z.ZodSchema<Params>;
 };

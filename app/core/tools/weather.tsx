@@ -44,6 +44,7 @@ const weather: ToolConfig<Params, WeatherResult> = {
   aiTool,
   view: WeatherView,
   outputSchema: weatherSchema,
+  inputSchema: ParamsSchema,
 };
 
 export const weatherTool = { weather };

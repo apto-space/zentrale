@@ -52,6 +52,7 @@ const tomatoFactSearch: ToolConfig<Params, TomatoFactSearchResult> = {
   aiTool: aiTool,
   view: TomatoFactSearchView,
   outputSchema: tomatoFactSearchSchema,
+  inputSchema: ParamsSchema,
 };
 
 export const tomatoFactSearchTool = { tomatoFactSearch };

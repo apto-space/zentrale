@@ -21,8 +21,15 @@ export const ChatPage = ({
   onConversationUpdate,
   onRequestHuman,
 }: ChatPageProps) => {
-  const { messages, input, handleInputChange, handleSubmit, status, append } =
-    useConversationChatV2(conversationId, onConversationUpdate);
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    status,
+    append,
+    stop,
+  } = useConversationChatV2(conversationId, onConversationUpdate);
   const lastMessage = messages[messages.length - 1];
   console.log("lastMessage", lastMessage);
 
@@ -78,6 +85,16 @@ export const ChatPage = ({
             onFeedback={handleFeedback}
             onRequestHuman={onRequestHuman}
           />
+          {status === "streaming" && (
+            <div className="p-4 flex justify-end">
+              <button
+                onClick={stop}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+              >
+                Stop
+              </button>
+            </div>
+          )}
           <ChatInput
             input={input}
             handleInputChange={handleInputChange}
