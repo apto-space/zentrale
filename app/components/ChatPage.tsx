@@ -1,5 +1,5 @@
 "use client";
-import ChatMessages, { ChatMessage } from "./ChatMessages";
+import { ChatMessages, ChatMessage } from "./ChatMessages";
 import { EmptyState } from "./EmptyState";
 import { ChatInput } from "./ChatInput";
 import { ConversationSidebar } from "./ConversationSidebar";
@@ -85,24 +85,16 @@ export const ChatPage = ({
             isLoading={status == "streaming"}
             onFeedback={handleFeedback}
             onRequestHuman={onRequestHuman}
+            onReload={status === "ready" ? reload : undefined}
           />
           <div className="p-4 flex justify-end">
-            {status === "streaming" ? (
+            {status === "streaming" && (
               <button
                 onClick={stop}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
               >
                 Stop
               </button>
-            ) : status === "ready" ? (
-              <button
-                onClick={() => reload()}
-                className="px-4 py-2 bg-[var(--accent-primary)] text-white rounded-lg hover:bg-[var(--accent-primary)]/90 transition-colors"
-              >
-                Reload
-              </button>
-            ) : (
-              <></>
             )}
           </div>
           <ChatInput

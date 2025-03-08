@@ -2,13 +2,18 @@ import { useState } from "react";
 import { ToolRenderer } from "../core/tools/ToolRenderer";
 import { ChatMessage, Feedback, MessagePart } from "./ChatMessages";
 import MarkdownContent from "./MarkdownContent";
+import { RotateCcw } from "lucide-react";
 
 export function ViewMessage({
   message,
   onFeedback,
+  onReload,
+  isLastMessage,
 }: {
   message: ChatMessage;
   onFeedback?: (isPositive: boolean) => void;
+  onReload?: () => void;
+  isLastMessage?: boolean;
 }) {
   const [feedback, setFeedback] = useState<Feedback | null>(
     message.feedback ?? null
@@ -52,33 +57,46 @@ export function ViewMessage({
               )}
             </div>
           ))}
-          {onFeedback && (
+          {(onFeedback || onReload) && (
             <div className="flex items-center gap-1 mt-1.5 text-sm">
-              <span className="text-[var(--text-secondary)]">
-                Was this helpful?
-              </span>
-              <button
-                onClick={() => handleFeedback(true)}
-                className={`p-1 rounded transition-colors cursor-pointer ${
-                  feedback?.is_positive === true
-                    ? "bg-black"
-                    : "text-[var(--text-secondary)]"
-                }`}
-                title="Yes"
-              >
-                👍
-              </button>
-              <button
-                onClick={() => handleFeedback(false)}
-                className={`p-1 rounded transition-colors cursor-pointer ${
-                  feedback?.is_positive === false
-                    ? "bg-black"
-                    : "text-[var(--text-secondary)]"
-                }`}
-                title="No"
-              >
-                👎
-              </button>
+              {onFeedback && (
+                <>
+                  <span className="text-[var(--text-secondary)]">
+                    Was this helpful?
+                  </span>
+                  <button
+                    onClick={() => handleFeedback(true)}
+                    className={`p-1 rounded transition-colors cursor-pointer ${
+                      feedback?.is_positive === true
+                        ? "bg-black"
+                        : "text-[var(--text-secondary)]"
+                    }`}
+                    title="Yes"
+                  >
+                    👍
+                  </button>
+                  <button
+                    onClick={() => handleFeedback(false)}
+                    className={`p-1 rounded transition-colors cursor-pointer ${
+                      feedback?.is_positive === false
+                        ? "bg-black"
+                        : "text-[var(--text-secondary)]"
+                    }`}
+                    title="No"
+                  >
+                    👎
+                  </button>
+                </>
+              )}
+              {onReload && isLastMessage && (
+                <button
+                  onClick={onReload}
+                  className="ml-auto p-1 rounded transition-colors cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  title="Reload"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+              )}
             </div>
           )}
         </div>

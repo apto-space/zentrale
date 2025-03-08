@@ -10,12 +10,6 @@ export type Feedback = {
   is_positive: boolean;
   feedback_text?: string;
 };
-interface ChatMessagesProps {
-  messages: ChatMessage[];
-  isLoading?: boolean;
-  onRequestHuman?: () => void;
-  onFeedback?: (messageOffset: number, isPositive: boolean) => void;
-}
 
 export type MessagePart = {
   type: "text" | "tool-invocation";
@@ -23,12 +17,21 @@ export type MessagePart = {
   toolInvocation?: any;
 };
 
-export default function ChatMessages({
+export type ChatMessagesProps = {
+  messages: ChatMessage[];
+  isLoading: boolean;
+  onFeedback?: (messageOffset: number, isPositive: boolean) => void;
+  onRequestHuman?: () => void;
+  onReload?: () => void;
+};
+
+export const ChatMessages = ({
   messages,
-  isLoading = false,
-  onRequestHuman,
+  isLoading,
   onFeedback,
-}: ChatMessagesProps) {
+  onRequestHuman,
+  onReload,
+}: ChatMessagesProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -47,7 +50,7 @@ export default function ChatMessages({
       {messages.length > 0 && onRequestHuman && <Dropout></Dropout>}
       {messages.map((message, index) => (
         <div
-          key={index}
+          key={message.id}
           className={`flex ${
             message.role === "user" ? "justify-end" : "justify-start"
           }
@@ -56,18 +59,28 @@ export default function ChatMessages({
         >
           <ViewMessage
             message={message}
-            onFeedback={(isPositive) =>
-              onFeedback?.(Math.abs(-index + messages.length) - 1, isPositive)
+            onFeedback={
+              onFeedback
+                ? (isPositive) => onFeedback(index, isPositive)
+                : undefined
             }
+            isLastMessage={index === messages.length - 1}
+            onReload={onReload}
           />
         </div>
       ))}
-      {isLoading && <Loader />}
+      {isLoading && (
+        <div className="flex items-center gap-2 text-[var(--text-secondary)]">
+          <div className="animate-spin">⚡</div>
+          <span>Thinking...</span>
+        </div>
+      )}
       <div ref={messagesEndRef} />
     </div>
     // </div>
   );
-}
+};
+
 const Dropout = () => {
   return (
     <div className="flex justify-center mb-4">
@@ -78,19 +91,6 @@ const Dropout = () => {
         <span>👥</span>
         Talk to a Human
       </button>
-    </div>
-  );
-};
-const Loader = () => {
-  return (
-    <div className="flex justify-start">
-      <div className="bg-[var(--card-background)] rounded-lg p-4 shadow-sm border border-[var(--card-border)]">
-        <div className="flex space-x-2">
-          <div className="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce" />
-          <div className="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce delay-100" />
-          <div className="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce delay-200" />
-        </div>
-      </div>
     </div>
   );
 };
