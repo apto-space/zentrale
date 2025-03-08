@@ -6,7 +6,7 @@ import { RotateCcw } from "lucide-react";
 
 function UserMessage({ content }: { content: string }) {
   return (
-    <div className="max-w-[80%] rounded-4xl p-4 bg-gray-50">
+    <div className="max-w-[80%] rounded-4xl p-4 bg-gray-50 dark:bg-gray-900">
       <MarkdownContent content={content.trim()} />
     </div>
   );

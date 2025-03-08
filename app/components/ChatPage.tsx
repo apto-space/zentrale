@@ -102,6 +102,8 @@ export const ChatPage = ({
           input={input}
           handleInputChange={handleInputChange}
           handleSubmit={handleSubmit}
+          status={status}
+          onStop={stop}
         />
       ) : (
         <>
@@ -114,20 +116,12 @@ export const ChatPage = ({
               status === "ready" || status === "error" ? reload : undefined
             }
           />
-          <div className="p-4 flex justify-end">
-            {status === "streaming" && (
-              <button
-                onClick={stop}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-              >
-                Stop
-              </button>
-            )}
-          </div>
           <ChatInput
             input={input}
             handleInputChange={handleInputChange}
             handleSubmit={handleSubmit}
+            status={status}
+            onStop={stop}
           />
         </>
       )}

@@ -86,10 +86,6 @@ export const ConversationSidebar = ({
     deleteMutation.mutate(id);
   };
 
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
-
   const sidebarContent = () => {
     if (error instanceof Error) {
       return <div className="text-red-500">Error: {error.message}</div>;
@@ -98,10 +94,10 @@ export const ConversationSidebar = ({
     if (isLoading) {
       return (
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
           {[...Array(5)].map((_, i) => (
             <div key={i} className="space-y-2 mb-4">
-              <div className="h-12 bg-gray-200 rounded"></div>
+              <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
             </div>
           ))}
         </div>
@@ -131,7 +127,7 @@ export const ConversationSidebar = ({
         } transition-all duration-300 ease-in-out z-40 w-lg h-full max-w-full pointer-events-none`}
       >
         <div className="h-full p-6">
-          <div className="bg-stone-100 rounded-3xl p-6 overflow-y-auto max-h-min pointer-events-auto">
+          <div className="bg-stone-100 dark:bg-gray-900 rounded-3xl p-6 overflow-y-auto max-h-min pointer-events-auto">
             {sidebarContent()}
           </div>
         </div>

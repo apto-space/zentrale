@@ -87,7 +87,7 @@ export const ChatMessages = ({
         <div className="flex justify-center">
           <button
             onClick={onReload}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-black text-white  transition-colors cursor-pointer hover:bg-gray-800"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-black text-white  transition-colors cursor-pointer hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
           >
             <RotateCcw className="w-4 h-4" />
             Regenerate response

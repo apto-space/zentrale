@@ -54,13 +54,13 @@ export const ConversationList = ({
       <div className="flex gap-2">
         <button
           onClick={onSelect}
-          className=" aspect-square p-3 flex items-center justify-center cursor-pointer text-[var(--text-secondary)] bg-white hover:bg-gray-50 rounded-full transition-colors"
+          className="w-6 h-6 flex items-center justify-center box-content grow-0 aspect-square shrink-0 p-3 cursor-pointer text-[var(--text-secondary)] bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-full transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
         <button
           onClick={handleNewChat}
-          className="flex-1 p-3 flex items-center justify-center gap-2 cursor-pointer text-white bg-black hover:bg-gray-900 rounded-full transition-colors"
+          className="flex-1 p-3 flex items-center justify-center gap-2 cursor-pointer text-white bg-black hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-200 rounded-full transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Chat

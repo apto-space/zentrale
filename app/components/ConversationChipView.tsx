@@ -26,8 +26,10 @@ export const ConversationChipView = ({
     <div className="group relative">
       <button
         onClick={onSelect}
-        className={`text-left p-3 w-full rounded-lg transition-colors cursor-pointer bg-white ${
-          isSelected ? "bg-orange-50" : "hover:bg-gray-50"
+        className={`text-left p-3 w-full rounded-lg transition-colors cursor-pointer bg-white dark:bg-gray-800 ${
+          isSelected
+            ? "bg-orange-50 dark:bg-orange-900/50"
+            : "hover:bg-gray-50 dark:hover:bg-gray-700"
         }`}
       >
         <div className="flex items-center gap-2">
@@ -50,7 +52,7 @@ export const ConversationChipView = ({
           e.stopPropagation();
           onDelete();
         }}
-        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 group-hover:opacity-100 hover:text-red-500 hover:bg-red-50 w-8 h-8 flex items-center justify-center rounded-full cursor-pointer"
+        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 group-hover:opacity-100 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/50 w-8 h-8 flex items-center justify-center rounded-full cursor-pointer"
       >
         <Trash2 className="w-4 h-4" />
       </button>
