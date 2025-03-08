@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import { ConversationList } from "./ConversationList";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Conversation = {
   conversation_id: string;
@@ -15,53 +16,46 @@ interface ConversationSidebarProps {
   refreshKey?: number;
 }
 
+const fetchConversations = async (): Promise<Conversation[]> => {
+  const response = await fetch("/core/api/conversations");
+  if (!response.ok) {
+    throw new Error("Failed to fetch conversations");
+  }
+  const data = await response.json();
+  return data.sort(
+    (a: Conversation, b: Conversation) =>
+      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+  );
+};
+
+const deleteConversation = async (id: string): Promise<void> => {
+  const response = await fetch(`/core/api/conversations/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error("Failed to delete conversation");
+  }
+};
+
 export const ConversationSidebar = ({
   refreshKey,
 }: ConversationSidebarProps) => {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
 
-  const fetchConversations = async () => {
-    try {
-      const response = await fetch("/core/api/conversations");
-      if (!response.ok) {
-        throw new Error("Failed to fetch conversations");
-      }
-      const data = await response.json();
-      // Sort conversations by updated_at in descending order
-      const sortedConversations = data.sort(
-        (a: Conversation, b: Conversation) =>
-          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-      );
-      setConversations(sortedConversations);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch conversations"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const {
+    data: conversations = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["conversations", refreshKey],
+    queryFn: fetchConversations,
+  });
 
-  // Fetch conversations initially and when refreshKey changes
-  useEffect(() => {
-    fetchConversations();
-  }, [refreshKey, searchParams]);
-
-  const handleDelete = async (id: string) => {
-    try {
-      const response = await fetch(`/core/api/conversations/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete conversation");
-      }
-
+  const deleteMutation = useMutation({
+    mutationFn: deleteConversation,
+    onSuccess: (_, id) => {
       // If we're deleting the current conversation, redirect to home
       const currentConversationId = new URL(
         window.location.href
@@ -69,12 +63,16 @@ export const ConversationSidebar = ({
       if (currentConversationId === id) {
         router.push("/core");
       }
-
-      // Refresh the conversations list
-      fetchConversations();
-    } catch (error) {
+      // Invalidate and refetch conversations
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    },
+    onError: (error) => {
       console.error("Error deleting conversation:", error);
-    }
+    },
+  });
+
+  const handleDelete = (id: string) => {
+    deleteMutation.mutate(id);
   };
 
   const toggleSidebar = () => {
@@ -82,8 +80,8 @@ export const ConversationSidebar = ({
   };
 
   const sidebarContent = () => {
-    if (error) {
-      return <div className="text-red-500">Error: {error}</div>;
+    if (error instanceof Error) {
+      return <div className="text-red-500">Error: {error.message}</div>;
     }
 
     if (isLoading) {

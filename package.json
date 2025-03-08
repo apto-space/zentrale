@@ -12,6 +12,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.14",
     "@ai-sdk/react": "^1.1.21",
+    "@tanstack/react-query": "^5.67.2",
     "@types/uuid": "^10.0.0",
     "ai": "^4.1.51",
     "cohere-ai": "^7.16.0",
