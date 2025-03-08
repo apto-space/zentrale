@@ -4,7 +4,7 @@ import { ConversationList } from "./ConversationList";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Menu } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
+import { atom, useAtom } from "jotai";
 type Conversation = {
   conversation_id: string;
   created_at: string;
@@ -27,7 +27,17 @@ const fetchConversations = async (): Promise<Conversation[]> => {
       new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
   );
 };
-
+export const OpenButton = () => {
+  const [isOpen, setIsOpen] = useAtom(openAtom);
+  return (
+    <button
+      onClick={() => setIsOpen(!isOpen)}
+      className="p-2 z-50 flex items-center justify-center h-full aspect-square rounded-full hover:bg-gray-50 transition-colors cursor-pointer"
+    >
+      <Menu className="w-6 h-6" />
+    </button>
+  );
+};
 const deleteConversation = async (id: string): Promise<void> => {
   const response = await fetch(`/core/api/conversations/${id}`, {
     method: "DELETE",
@@ -36,11 +46,12 @@ const deleteConversation = async (id: string): Promise<void> => {
     throw new Error("Failed to delete conversation");
   }
 };
+const openAtom = atom(false);
 
 export const ConversationSidebar = ({
   refreshKey,
 }: ConversationSidebarProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useAtom(openAtom);
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -113,21 +124,14 @@ export const ConversationSidebar = ({
 
   return (
     <>
-      {/* Toggle button - only visible when sidebar is closed */}
-      {!isOpen && (
-        <button onClick={toggleSidebar} className="fixed top-4 left-4 p-2 z-50">
-          <Menu className="w-6 h-6" />
-        </button>
-      )}
-
       {/* Sidebar */}
       <div
         className={`fixed inset-y-0 left-0 transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out z-40 w-lg h-full max-w-full`}
+        } transition-all duration-300 ease-in-out z-40 w-lg h-full max-w-full pointer-events-none`}
       >
         <div className="h-full p-6">
-          <div className="bg-stone-100 rounded-3xl p-6 overflow-y-auto max-h-min">
+          <div className="bg-stone-100 rounded-3xl p-6 overflow-y-auto max-h-min pointer-events-auto">
             {sidebarContent()}
           </div>
         </div>
@@ -136,7 +140,7 @@ export const ConversationSidebar = ({
       {/* Overlay - now always visible when sidebar is open */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30"
+          className="fixed inset-0 bg-black/50 z-30 cursor-pointer"
           onClick={() => setIsOpen(false)}
         />
       )}

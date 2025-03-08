@@ -2,7 +2,7 @@
 import { ChatMessages, ChatMessage } from "./ChatMessages";
 import { EmptyState } from "./EmptyState";
 import { ChatInput } from "./ChatInput";
-import { ConversationSidebar } from "./ConversationSidebar";
+import { ConversationSidebar, OpenButton } from "./ConversationSidebar";
 import { useConversationChatV2 } from "../hooks/useConversationChatV2";
 import { useState, useEffect } from "react";
 
@@ -66,11 +66,36 @@ export const ChatPage = ({
 
   return (
     <div className="flex-1 flex flex-col">
-      {messages.length > 0 && (
-        <div className="p-4 border-[var(--card-border)]">
-          <h1 className="text-lg font-medium">You are talking to Jon Bot</h1>
+      <div className="fixed top-0 left-0 w-full   z-10 flex">
+        <div className=" flex-1">
+          <OpenButton />
         </div>
-      )}
+        <div className="  w-full grow justify-center max-w-4xl">
+          {messages.length > 0 && (
+            <div className="p-4 border-[var(--card-border)]">
+              <h1 className="text-lg font-medium">
+                You are talking to Jon Bot
+              </h1>
+            </div>
+          )}
+        </div>
+        <div className=" flex-1"></div>
+      </div>
+      <div className="top-0 left-0 w-full   z-10 flex opacity-0">
+        <div className=" flex-1">
+          <OpenButton />
+        </div>
+        <div className="  w-full grow justify-center max-w-4xl">
+          {messages.length > 0 && (
+            <div className="p-4 border-[var(--card-border)]">
+              <h1 className="text-lg font-medium">
+                You are talking to Jon Bot
+              </h1>
+            </div>
+          )}
+        </div>
+        <div className=" flex-1"></div>
+      </div>
       {messages.length === 0 ? (
         <EmptyState
           onQuestionClick={handleQuestionClick}
