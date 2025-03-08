@@ -1,0 +1,2 @@
+- make the core chat full width scrollable area
+- fix sidebar bug

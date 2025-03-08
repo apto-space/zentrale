@@ -32,7 +32,7 @@ export const OpenButton = () => {
   return (
     <button
       onClick={() => setIsOpen(!isOpen)}
-      className="p-2 z-50 flex items-center justify-center h-full aspect-square rounded-full hover:bg-gray-50 transition-colors cursor-pointer"
+      className="p-2 z-50 flex items-center justify-center h-full aspect-square rounded-full hover:bg-gray-50 transition-colors cursor-pointer dark:hover:bg-gray-800"
     >
       <Menu className="w-6 h-6" />
     </button>
