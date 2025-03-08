@@ -5,6 +5,7 @@ import { ChatInput } from "./ChatInput";
 import { ConversationSidebar, OpenButton } from "./ConversationSidebar";
 import { useConversationChatV2 } from "../hooks/useConversationChatV2";
 import { useState, useEffect } from "react";
+import { ChatAppConfig } from "../core/ChatAppConfig";
 
 // next steps
 // decoding conversations
@@ -14,12 +15,14 @@ interface ChatPageProps {
   conversationId: string;
   onConversationUpdate?: () => void;
   onRequestHuman?: () => void;
+  config: ChatAppConfig;
 }
 
 export const ChatPage = ({
   conversationId,
   onConversationUpdate,
   onRequestHuman,
+  config,
 }: ChatPageProps) => {
   const {
     messages,
@@ -30,7 +33,7 @@ export const ChatPage = ({
     append,
     stop,
     reload,
-  } = useConversationChatV2(conversationId, onConversationUpdate);
+  } = useConversationChatV2(conversationId, onConversationUpdate, config);
   const lastMessage = messages[messages.length - 1];
   console.log("lastMessage", lastMessage);
 
@@ -73,9 +76,7 @@ export const ChatPage = ({
         <div className="  w-full grow justify-center max-w-4xl">
           {messages.length > 0 && (
             <div className="p-4 border-[var(--card-border)]">
-              <h1 className="text-lg font-medium">
-                You are talking to Jon Bot
-              </h1>
+              <h1 className="text-lg font-medium">{config.name}</h1>
             </div>
           )}
         </div>
@@ -88,9 +89,7 @@ export const ChatPage = ({
         <div className="  w-full grow justify-center max-w-4xl">
           {messages.length > 0 && (
             <div className="p-4 border-[var(--card-border)]">
-              <h1 className="text-lg font-medium">
-                You are talking to Jon Bot
-              </h1>
+              <h1 className="text-lg font-medium">{config.name}</h1>
             </div>
           )}
         </div>
@@ -104,6 +103,8 @@ export const ChatPage = ({
           handleSubmit={handleSubmit}
           status={status}
           onStop={stop}
+          examples={config.options?.examples}
+          greeting={config.options?.greeting}
         />
       ) : (
         <>

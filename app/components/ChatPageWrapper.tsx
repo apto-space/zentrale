@@ -5,8 +5,16 @@ import { useEffect, useState } from "react";
 import { v4 } from "uuid";
 import { ChatPage } from "./ChatPage";
 import { ConversationSidebar } from "./ConversationSidebar";
+import { ChatAppConfig } from "../core/ChatAppConfig";
+import { defaultConfig } from "../core/api/chat/aiConfig";
 
-export const ChatPageWrapper = () => {
+type ChatPageWrapperProps = {
+  config?: ChatAppConfig;
+};
+
+export const ChatPageWrapper = ({
+  config = defaultConfig,
+}: ChatPageWrapperProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -43,6 +51,7 @@ export const ChatPageWrapper = () => {
           key={conversationId}
           conversationId={conversationId}
           onConversationUpdate={handleConversationUpdate}
+          config={config}
         />
       </div>
     </div>
