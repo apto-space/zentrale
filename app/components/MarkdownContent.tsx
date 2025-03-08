@@ -91,22 +91,18 @@ const MarkdownImage: Components["img"] = ({ src, alt }) => {
 // Custom components for better markdown rendering
 const components: Components = {
   img: MarkdownImage,
-  ul: ({ children }) => (
-    <ul className="list-disc pl-6 mb-4 space-y-2">{children}</ul>
-  ),
-  ol: ({ children }) => (
-    <ol className="list-decimal pl-6 mb-4 space-y-2">{children}</ol>
-  ),
+  ul: ({ children }) => <ul className="list-disc pl-6  ">{children}</ul>,
+  ol: ({ children }) => <ol className="list-decimal pl-6  ">{children}</ol>,
   li: ({ children }) => <li className="leading-relaxed">{children}</li>,
   p: ({ children }) => <p className=" leading-relaxed">{children}</p>,
-  h1: ({ children }) => <h1 className="text-4xl font-bold mb-4">{children}</h1>,
-  h2: ({ children }) => <h2 className="text-3xl font-bold mb-3">{children}</h2>,
-  h3: ({ children }) => <h3 className="text-2xl font-bold mb-2">{children}</h3>,
+  h1: ({ children }) => <h1 className="text-4xl font-bold ">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-3xl font-bold ">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-2xl font-bold ">{children}</h3>,
   h4: ({ children }) => (
     <h4 className="text-base font-bold text-gray-900 my-2">{children}</h4>
   ),
   blockquote: ({ children }) => (
-    <blockquote className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 mb-4 italic">
+    <blockquote className="border-l-4 border-gray-300 dark:border-gray-600 pl-4  italic">
       {children}
     </blockquote>
   ),
@@ -116,7 +112,7 @@ const components: Components = {
     </code>
   ),
   pre: ({ children }) => (
-    <pre className="bg-gray-100 dark:bg-gray-800 rounded p-4 mb-4 overflow-x-auto">
+    <pre className="bg-gray-100 dark:bg-gray-800 rounded p-4  overflow-x-auto">
       {children}
     </pre>
   ),

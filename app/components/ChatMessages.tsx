@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import { Message } from "@ai-sdk/react";
 import { ViewMessage } from "./ChatMessage";
+import { RotateCcw } from "lucide-react";
 
 export type ChatMessage = Message & {
   feedback: Feedback | null;
@@ -19,7 +20,7 @@ export type MessagePart = {
 
 export type ChatMessagesProps = {
   messages: ChatMessage[];
-  isLoading: boolean;
+  status: "streaming" | "ready" | "submitted" | "error";
   onFeedback?: (messageOffset: number, isPositive: boolean) => void;
   onRequestHuman?: () => void;
   onReload?: () => void;
@@ -27,7 +28,7 @@ export type ChatMessagesProps = {
 
 export const ChatMessages = ({
   messages,
-  isLoading,
+  status,
   onFeedback,
   onRequestHuman,
   onReload,
@@ -41,8 +42,10 @@ export const ChatMessages = ({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-  console.log(messages);
-  // make it so that the messages appear at the bottom
+
+  const lastMessage = messages[messages.length - 1];
+  const showStandaloneReload =
+    lastMessage?.role === "user" && status === "ready" && onReload;
 
   return (
     // <div className="flex flex-1 flex-col h-full bg-purple-100">
@@ -69,10 +72,26 @@ export const ChatMessages = ({
           />
         </div>
       ))}
-      {isLoading && (
-        <div className="flex items-center gap-2 text-[var(--text-secondary)]">
-          <div className="animate-spin">⚡</div>
-          <span>Thinking...</span>
+      {status === "submitted" && (
+        <div className="flex justify-center">
+          <span className="text-xs text-gray-400">submitting...</span>
+        </div>
+      )}
+      {status === "error" && (
+        <div className="flex items-center gap-2 text-red-500 justify-center">
+          <span>⚠️</span>
+          <span>Something went wrong. Please try again.</span>
+        </div>
+      )}
+      {showStandaloneReload && (
+        <div className="flex justify-center">
+          <button
+            onClick={onReload}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-black text-white hover:bg-gray-900 transition-colors"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Regenerate response
+          </button>
         </div>
       )}
       <div ref={messagesEndRef} />

@@ -82,7 +82,7 @@ export const ChatPage = ({
         <>
           <ChatMessages
             messages={messages}
-            isLoading={status == "streaming"}
+            status={status}
             onFeedback={handleFeedback}
             onRequestHuman={onRequestHuman}
             onReload={status === "ready" ? reload : undefined}

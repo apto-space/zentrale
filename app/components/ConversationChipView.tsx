@@ -50,7 +50,7 @@ export const ConversationChipView = ({
           e.stopPropagation();
           onDelete();
         }}
-        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 opacity-0 group-hover:opacity-100 hover:text-red-500 transition-opacity"
+        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 group-hover:opacity-100 hover:text-red-500 hover:bg-red-50 w-8 h-8 flex items-center justify-center rounded-full cursor-pointer"
       >
         <Trash2 className="w-4 h-4" />
       </button>
