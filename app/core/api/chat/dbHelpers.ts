@@ -17,7 +17,7 @@ export type Message = {
 export type StreamProcessParams = {
   stream: ReadableStream;
   writer: WritableStreamDefaultWriter;
-  conversation: Conversation;
+  conversation: { conversation_id: string };
 };
 
 const insertMessageQuery = `
@@ -38,7 +38,19 @@ export async function upsertConversation({
   sessionId: string;
   conversationId: string;
   nextMessage: Message;
-}): Promise<Conversation> {
+}): Promise<{ conversation_id: string }> {
+  // ensure last message has not been saved yet
+  const lastMessage = await client.querySingle<Message>(
+    `select Message {content:= .message_content} filter .message_conversation.conversation_id = <uuid>$conversation_id order by .created_at desc limit 1`,
+    {
+      conversation_id: conversationId,
+    }
+  );
+  console.log(lastMessage);
+  if (JSON.parse(lastMessage?.content ?? "{}") == nextMessage.content) {
+    return { conversation_id: conversationId };
+  }
+
   const newConversation = await client.querySingle<Conversation>(
     `
     with

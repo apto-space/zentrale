@@ -85,7 +85,9 @@ export const ChatPage = ({
             status={status}
             onFeedback={handleFeedback}
             onRequestHuman={onRequestHuman}
-            onReload={status === "ready" ? reload : undefined}
+            onReload={
+              status === "ready" || status === "error" ? reload : undefined
+            }
           />
           <div className="p-4 flex justify-end">
             {status === "streaming" && (

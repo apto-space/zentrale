@@ -5,7 +5,9 @@ import { createStream } from "./aiConfig";
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const json = await req.json();
+  console.log(json);
+  const { messages } = json;
   const url = new URL(req.url);
   const sessionId = url.searchParams.get("sessionId");
   const conversationId = url.searchParams.get("conversationId");

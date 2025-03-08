@@ -83,11 +83,11 @@ export const ChatMessages = ({
           <span>Something went wrong. Please try again.</span>
         </div>
       )}
-      {showStandaloneReload && (
+      {(showStandaloneReload || status == "error") && (
         <div className="flex justify-center">
           <button
             onClick={onReload}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-black text-white hover:bg-gray-900 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-black text-white  transition-colors cursor-pointer hover:bg-gray-800"
           >
             <RotateCcw className="w-4 h-4" />
             Regenerate response
