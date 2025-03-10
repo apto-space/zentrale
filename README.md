@@ -146,5 +146,5 @@ MIT License - feel free to use this template for your own projects.
 
 - [Next.js](https://nextjs.org/)
 - [Vercel AI SDK](https://sdk.vercel.ai/)
-- [geldata](https://github.com/apto-space/geldata)
+- [geldata](https://geldata.com)
 - [Tailwind CSS](https://tailwindcss.com/)
