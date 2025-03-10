@@ -2,6 +2,14 @@
 
 A production-ready template for building conversational AI applications with Next.js, React, and Vercel AI SDK. This template provides a solid foundation for creating chat interfaces with LLMs, tool integration, and persistent conversations.
 
+We were building multiple AI applications and found ourselves implementing the same features over and over again - chat interfaces, tool integrations, conversation persistence, and more. This template is the result of our experience, giving you a head start on building production-ready AI applications.
+
+While there are other chat UI libraries out there, Zentrale is specifically designed for modern AI applications:
+
+- **vs LobeChat**: While LobeChat is feature-rich, it's often "you want the banana but you get the gorilla". Zentrale is more minimalist and focused, giving you exactly what you need for AI applications without unnecessary complexity.
+
+- **vs chat-ui-kit-react**: Many existing chat UI kits are outdated, not designed for LLM applications, and lack modern features. Zentrale is built specifically for AI interactions with streaming, tool integration, and modern UI/UX in mind.
+
 ## Features
 
 - 🎨 **Modern UI/UX**
