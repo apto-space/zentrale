@@ -20,8 +20,8 @@ const cohere = new CohereClient({
 export async function rerankDocuments(
   documents: Document[],
   query: string,
-  topN: number = 5,
-  relevanceThreshold: number = 0.2
+  topN: number = 10,
+  relevanceThreshold: number = 0.1
 ): Promise<RerankedDocument[]> {
   // Rerank the documents using Cohere
   const reranked = await cohere.rerank({
@@ -30,20 +30,22 @@ export async function rerankDocuments(
     returnDocuments: true,
     topN,
   });
+  console.log("Reranked", reranked);
 
   // Filter and map the reranked results
   const relevantDocs = reranked.results
-    .filter((result) => result.relevanceScore > relevanceThreshold)
     .map((result) => {
       const originalDoc = documents.find(
         (doc) => doc.content === result.document?.text
       );
+      console.log("Original doc", result.relevanceScore, result.document?.text);
       return {
         content: result.document?.text || "",
         metadata: originalDoc?.metadata || {},
         distance: result.relevanceScore,
       };
-    });
+    })
+    .filter((result) => result.distance > relevanceThreshold);
 
   return relevantDocs;
 }

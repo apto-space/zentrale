@@ -94,6 +94,7 @@ export function ToolRenderer({ toolInvocation }: ToolRendererProps) {
   }
 
   const parseResult = tool.outputSchema.safeParse(result);
+  const parseArgs = tool.inputSchema.safeParse(args);
   if (!parseResult.success) {
     return (
       <div className="bg-[var(--background)] p-3 rounded-lg border border-[var(--card-border)]">
@@ -108,7 +109,21 @@ export function ToolRenderer({ toolInvocation }: ToolRendererProps) {
       </div>
     );
   }
+  if (!parseArgs.success) {
+    return (
+      <div className="bg-[var(--background)] p-3 rounded-lg border border-[var(--card-border)]">
+        <div className="text-red-500 mb-2">Input Validation Error:</div>
+        <pre className="text-sm overflow-auto mb-2">
+          {JSON.stringify(parseArgs.error, null, 2)}
+        </pre>
+        <div className="text-sm text-[var(--text-secondary)]">Raw args:</div>
+        <pre className="text-sm overflow-auto">
+          {JSON.stringify(args, null, 2)}
+        </pre>
+      </div>
+    );
+  }
 
   const View = tool.view;
-  return <View result={parseResult.data} />;
+  return <View result={parseResult.data} params={parseArgs.data} />;
 }

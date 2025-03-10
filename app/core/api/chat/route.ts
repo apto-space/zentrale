@@ -1,12 +1,11 @@
 import { processStreamAndSaveResponse, upsertConversation } from "./dbHelpers";
-import { createStream } from "./aiConfig";
+import { createStream, defaultConfig } from "./aiConfig";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
   const json = await req.json();
-  console.log(json);
   const { messages } = json;
   const url = new URL(req.url);
   const sessionId = url.searchParams.get("sessionId");
@@ -30,7 +29,7 @@ export async function POST(req: Request) {
       nextMessage,
     });
 
-    const result = createStream(messages);
+    const result = createStream(messages, defaultConfig);
 
     // Create a TransformStream to collect the assistant's message while streaming
     const { readable, writable } = new TransformStream();

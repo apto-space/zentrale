@@ -7,10 +7,16 @@ alwaysApply: false
 # Project context
 - We are using bun instead of npm
 - prefer a functional or imperative style over object-oriented
-- Explain changes only briefly after completing
+    - avoid classes if possible!
 - always await nextJS page params
+
+# Unit testing
 - use bun:test for unit tests
+
+# dependencies?
 - do not install new packages unless prompted to do so
+- when installing, use bun add ...
+- always check [package.json](mdc:package.json) if a package is already installed
 
 # DATABASE
 - The db schema is at @default.esdl. Read it carefully and respect it.

@@ -72,7 +72,7 @@ export const ConversationSidebar = ({
         window.location.href
       ).searchParams.get("conversationId");
       if (currentConversationId === id) {
-        router.push("/core");
+        router.push("/");
       }
       // Invalidate and refetch conversations
       queryClient.invalidateQueries({ queryKey: ["conversations"] });

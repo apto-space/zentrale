@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { v4 } from "uuid";
 import { ChatPage } from "./ChatPage";
 import { ConversationSidebar } from "./ConversationSidebar";
@@ -12,9 +12,7 @@ type ChatPageWrapperProps = {
   config?: ChatAppConfig;
 };
 
-export const ChatPageWrapper = ({
-  config = defaultConfig,
-}: ChatPageWrapperProps) => {
+function ChatPageContent({ config = defaultConfig }: ChatPageWrapperProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -56,4 +54,20 @@ export const ChatPageWrapper = ({
       </div>
     </div>
   );
-};
+}
+
+export function ChatPageWrapper(props: ChatPageWrapperProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="h-screen flex items-center justify-center">
+          <div className="animate-pulse text-[var(--text-secondary)]">
+            Loading...
+          </div>
+        </div>
+      }
+    >
+      <ChatPageContent {...props} />
+    </Suspense>
+  );
+}

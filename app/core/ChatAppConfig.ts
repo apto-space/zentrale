@@ -1,6 +1,5 @@
 import { Tool } from "ai";
 import { z } from "zod";
-import { ToolConfig } from "./tools/ToolConfig";
 
 // Type for tool exports like { search: Tool }
 export type ToolExport = { [key: string]: Tool };

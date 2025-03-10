@@ -7,10 +7,14 @@ interface Document {
   distance: number;
 }
 
-export async function retrieveSimilarDocuments(
-  userMessage: string,
-  limit: number = 10
-): Promise<Document[]> {
+export async function retrieveSimilarDocuments({
+  example,
+  keywords,
+}: {
+  example: string;
+
+  keywords: string[];
+}): Promise<Document[]> {
   const client = createClient();
 
   // Get the embedding for the user's message
@@ -23,13 +27,14 @@ export async function retrieveSimilarDocuments(
         Authorization: `Bearer ${process.env.VOYAGE_API_KEY}`,
       },
       body: JSON.stringify({
-        input: userMessage,
+        input: example,
         model: "voyage-2",
       }),
     }
   );
 
   const embeddingData = await embeddingResponse.json();
+  console.log("Embedding data", embeddingData);
   const embedding = embeddingData.data[0].embedding;
 
   // Query the database for similar documents
@@ -39,14 +44,17 @@ export async function retrieveSimilarDocuments(
       content,
       metadata,
       embedding,
+      keywords_matched:= any(.content ilike array_unpack(<array<str>>$keywords)),
       distance := ext::pgvector::cosine_distance(.embedding, <voyage_embedding>$embedding)
     }
-    order by .distance
+    # more keywords = higher score, higher distance = lower score
+    order by (if .keywords_matched then 1 else 0) - .distance desc
     limit <int64>$limit
   `,
     {
       embedding: new Float32Array(embedding),
-      limit,
+      limit: 10,
+      keywords: keywords.map((k) => `%${k}%`),
     }
   );
 

@@ -30,7 +30,6 @@ export async function POST(request: Request) {
       `,
       { messageOffset, conversationId }
     );
-    console.log(messages);
 
     if (messages.length === 0) {
       return NextResponse.json({ error: "Message not found" }, { status: 404 });

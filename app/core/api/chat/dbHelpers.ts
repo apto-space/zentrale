@@ -46,13 +46,12 @@ export async function upsertConversation({
       conversation_id: conversationId,
     }
   );
-  console.log(lastMessage);
   try {
     if (JSON.parse(lastMessage?.content ?? "{}") == nextMessage.content) {
       return { conversation_id: conversationId };
     }
   } catch (error) {
-    console.error(error);
+    // console.error(error);
   }
 
   const newConversation = await client.querySingle<Conversation>(

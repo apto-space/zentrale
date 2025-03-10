@@ -28,7 +28,7 @@ export const ConversationList = ({
   const currentConversationId = searchParams.get("conversationId");
 
   const handleNewChat = () => {
-    router.push("/core");
+    router.push("/");
     onSelect?.();
   };
 

@@ -17,7 +17,6 @@ export async function GET(
   { params }: { params: Promise<{ conversation_id: string }> }
 ) {
   const client = createClient();
-  console.log("getting messages");
 
   try {
     const messages = await client.query<DBMessage>(
