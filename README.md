@@ -1,4 +1,4 @@
-# AI Chat App Template
+# 📡 Zentrale
 
 A production-ready template for building conversational AI applications with Next.js, React, and Vercel AI SDK. This template provides a solid foundation for creating chat interfaces with LLMs, tool integration, and persistent conversations.
 
