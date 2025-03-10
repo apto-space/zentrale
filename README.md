@@ -1,36 +1,142 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Chat App Template
+
+A production-ready template for building conversational AI applications with Next.js, React, and Vercel AI SDK. This template provides a solid foundation for creating chat interfaces with LLMs, tool integration, and persistent conversations.
+
+## Features
+
+- 🎨 **Modern UI/UX**
+  - Clean, responsive chat interface
+  - Light/dark mode support
+  - Loading states and animations
+  - Mobile-friendly design
+
+- 🤖 **LLM Integration**
+  - Built on Vercel AI SDK
+  - Streaming responses
+  - Support for multiple LLM providers
+  - Configurable system prompts
+
+- 🛠️ **Tool System**
+  - Type-safe tool definitions
+  - Easy tool integration
+  - Built-in search tool
+  - Extensible tool architecture
+
+- 💾 **Data Persistence**
+  - Conversation history
+  - Message storage
+  - User feedback tracking
+  - Database integration with geldata
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/apto-space/zentrale.git
+   cd zentrale
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+2. Install dependencies:
+   ```bash
+   bun install
+   ```
+
+3. Set up your environment variables:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Edit `.env.local` with your API keys and configuration.
+
+4. Start the development server:
+   ```bash
+   bun dev
+   ```
+
+## Creating a New Chat App
+
+1. Define your app configuration:
+   ```typescript
+   const myAppConfig: ChatAppConfig = {
+     id: "my-chat-app",
+     name: "My AI Assistant",
+     prompts: {
+       system: "You are a helpful assistant...",
+     },
+     options: {
+       tools: [myTool],
+       greeting: "Welcome to My AI Assistant!",
+       examples: ["Example question 1", "Example question 2"],
+     },
+   };
+   ```
+
+2. Create your tools:
+   ```typescript
+   export const myTool: ToolExport = {
+     myTool: {
+       aiTool: {
+         name: "myTool",
+         description: "Description of my tool",
+         parameters: z.object({
+           // Your tool parameters
+         }),
+       },
+       view: MyToolView,
+     },
+   };
+   ```
+
+3. Use the template:
+   ```typescript
+   <ChatPageWrapper config={myAppConfig} />
+   ```
+
+## Customization
+
+### Styling
+The template uses Tailwind CSS for styling. Customize the theme in `tailwind.config.js`:
+```javascript
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        // Your custom colors
+      },
+    },
+  },
+};
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Database
+The template uses geldata for data persistence. Configure your database connection in `.env.local`:
+```
+DATABASE_URL=your_database_url
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### LLM Configuration
+Configure your LLM provider in `app/core/api/chat/aiConfig.ts`:
+```typescript
+export function createStream(messages: any[], config: ChatAppConfig) {
+  return streamText({
+    messages,
+    model: anthropic("claude-3-5-haiku-latest"),
+    system: config.prompts.system,
+    tools: config.options?.tools,
+  });
+}
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Contributing
 
-## Learn More
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-To learn more about Next.js, take a look at the following resources:
+## License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+MIT License - feel free to use this template for your own projects.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Acknowledgments
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js](https://nextjs.org/)
+- [Vercel AI SDK](https://sdk.vercel.ai/)
+- [geldata](https://github.com/apto-space/geldata)
+- [Tailwind CSS](https://tailwindcss.com/)
