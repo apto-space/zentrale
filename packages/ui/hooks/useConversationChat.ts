@@ -19,6 +19,15 @@ export type MessagePart = {
   toolInvocation?: any;
 };
 
+type UseChatInterface = {
+  append: (content: string) => void;
+};
+
+// generate test conversation code
+const testConversation = (): ReturnType<typeof useConversationChat> => {
+  return {};
+};
+
 export const useConversationChat = (
   conversationId: string,
   onStreamComplete?: () => void
