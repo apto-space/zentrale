@@ -4,7 +4,10 @@ import { EmptyState } from "./EmptyState";
 import { ChatInput } from "./ChatInput";
 import { OpenButton } from "./ConversationSidebar";
 import { type ChatAppConfig } from "../core/ChatAppConfig";
-import { useConversationChat } from "../hooks/useConversationChat";
+import {
+  useConversationChat,
+  type UseChatInterface,
+} from "../hooks/useConversationChat";
 
 // next steps
 // decoding conversations
@@ -13,16 +16,25 @@ import { useConversationChat } from "../hooks/useConversationChat";
 interface ChatPageProps {
   conversationId: string;
   onConversationUpdate?: () => void;
-  onRequestHuman?: () => void;
   config: ChatAppConfig;
 }
 
 export const ChatPage = ({
   conversationId,
   onConversationUpdate,
-  onRequestHuman,
   config,
 }: ChatPageProps) => {
+  const chat = useConversationChat(conversationId, onConversationUpdate);
+  return <ChatPageInner chat={chat} />;
+};
+export const ChatPageInner = ({ chat }: { chat: UseChatInterface }) => {
+  const handleQuestionClick = (question: string) => {
+    // Set the input value to the clicked question
+    append({
+      role: "user",
+      content: question,
+    });
+  };
   const {
     messages,
     input,
@@ -33,15 +45,7 @@ export const ChatPage = ({
     stop,
     reload,
     handleFeedback,
-  } = useConversationChat(conversationId, onConversationUpdate);
-
-  const handleQuestionClick = (question: string) => {
-    // Set the input value to the clicked question
-    append({
-      role: "user",
-      content: question,
-    });
-  };
+  } = chat;
 
   return (
     <div className="flex-1 flex flex-col">
@@ -88,7 +92,6 @@ export const ChatPage = ({
             messages={messages}
             status={status}
             onFeedback={handleFeedback}
-            onRequestHuman={onRequestHuman}
             onReload={
               status === "ready" || status === "error" ? reload : undefined
             }

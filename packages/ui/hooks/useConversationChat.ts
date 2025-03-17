@@ -1,7 +1,7 @@
 // hook to be used in the chat page
-import { useChat } from "@ai-sdk/react";
+import { useChat, type CreateMessage } from "@ai-sdk/react";
 import { useAnonSession } from "./useAnonSession";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { type Message } from "@ai-sdk/react";
 
 export type ChatMessage = Message & {
@@ -19,19 +19,60 @@ export type MessagePart = {
   toolInvocation?: any;
 };
 
-type UseChatInterface = {
-  append: (content: string) => void;
+export type UseChatInterface = {
+  append: (message: CreateMessage) => void;
+  input: string;
+  handleInputChange: (
+    e: ChangeEvent<HTMLTextAreaElement> | ChangeEvent<HTMLInputElement>
+  ) => void;
+  handleSubmit: () => void;
+  handleFeedback: (messageOffset: number, isPositive: boolean) => Promise<void>;
+  messages: ChatMessage[];
+  status: "submitted" | "streaming" | "ready" | "error";
+  error?: Error;
+  stop: () => void;
+  reload: () => void;
 };
 
 // generate test conversation code
-const testConversation = (): ReturnType<typeof useConversationChat> => {
-  return {};
+export const useTestConversation = (): UseChatInterface => {
+  const [input, setInput] = useState("");
+  const handleInputChange = (
+    e: ChangeEvent<HTMLTextAreaElement> | ChangeEvent<HTMLInputElement>
+  ) => {
+    setInput(e.target.value);
+  };
+  const handleSubmit = () => {
+    alert("submit");
+  };
+  return {
+    append: () => {},
+    handleFeedback: async () => {},
+    input,
+    handleInputChange,
+    handleSubmit,
+    messages: [
+      {
+        id: "1",
+        content: "Hello, how are you?",
+        role: "user" as const,
+        feedback: null,
+      },
+    ],
+    status: "ready",
+    stop: () => {
+      alert("stop");
+    },
+    reload: () => {
+      alert("reload");
+    },
+  };
 };
 
 export const useConversationChat = (
   conversationId: string,
   onStreamComplete?: () => void
-) => {
+): UseChatInterface => {
   const { id: sessionId } = useAnonSession();
   const handleFeedback = async (messageOffset: number, isPositive: boolean) => {
     // Optimistically update UI

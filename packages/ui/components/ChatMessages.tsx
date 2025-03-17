@@ -1,13 +1,12 @@
 import { useRef, useEffect } from "react";
 import { ViewMessage } from "./ChatMessage";
 import { RotateCcw } from "lucide-react";
-import type { ChatMessage } from "../hooks/useConversationChatV2";
+import type { ChatMessage } from "../hooks/useConversationChat";
 
 export type ChatMessagesProps = {
   messages: ChatMessage[];
   status: "streaming" | "ready" | "submitted" | "error";
   onFeedback?: (messageOffset: number, isPositive: boolean) => void;
-  onRequestHuman?: () => void;
   onReload?: () => void;
 };
 
@@ -15,7 +14,6 @@ export const ChatMessages = ({
   messages,
   status,
   onFeedback,
-  onRequestHuman,
   onReload,
 }: ChatMessagesProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -35,7 +33,6 @@ export const ChatMessages = ({
   return (
     // <div className="flex flex-1 flex-col h-full bg-purple-100">
     <div className=" overflow-y-auto p-4 space-y-4 flex-1 flex flex-col">
-      {messages.length > 0 && onRequestHuman && <Dropout></Dropout>}
       {messages.map((message, index) => (
         <div
           key={message.id}
