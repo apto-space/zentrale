@@ -1,0 +1,19 @@
+{
+  "name": "@zentrale/ui",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@ai-sdk/react": "^1.1.23",
+    "ai": "^4.1.61",
+    "lucide-react": "^0.482.0",
+    "zod": "^3.24.2"
+  }
+}
